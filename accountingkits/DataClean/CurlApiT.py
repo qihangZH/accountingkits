@@ -1,6 +1,5 @@
 import pandas as pd
 import requests
-import typing
 
 
 def usps_crosswalk_api_df(digital_token: str,
