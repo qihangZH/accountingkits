@@ -1,8 +1,9 @@
 import setuptools
+from AccountingKits import __version__ as ak_version
 
 setuptools.setup(
     name='AccountingKits',
-    version='0.1.0.230130',
+    version=ak_version,
     description='Accounting kits packages, especially for banking research',
     author='Zhang Qihang',
     author_email='694499657@qq.com',
