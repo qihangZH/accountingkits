@@ -6,20 +6,20 @@ import typing
 def usps_crosswalk_api_df(digital_token: str,
                           type_id: int,
                           query_id,
-                          year: int,
-                          quarter: int
+                          **kwargs
                           ):
     """
     More information see https://www.huduser.gov/portal/dataset/uspszip-api.html
     :param digital_token:
     :param type_id:
     :param query_id:
-    :param year:
-    :param quarter:1,2,3,4
+    :param kwargs: other arguments of huduser.gov
     :return:
     """
-    if not (quarter in [1,2,3,4]):
-        raise ValueError('quarter should in 1,2,3,4; and it should be int')
+    temp_usps_api_args_str = ''
+    for i in kwargs:
+        temp_usps_api_args_str = temp_usps_api_args_str + f'&{i}={kwargs[i]}'
+
     response_map_dict = {
         400: 'An invalid value was specified for one of the query parameters in the request URI.',
         401: 'Authentication failure',
@@ -30,8 +30,10 @@ def usps_crosswalk_api_df(digital_token: str,
         500: "Internal server error occurred"
     }
 
-    url = f"https://www.huduser.gov/hudapi/public/usps?type={type_id}&query={query_id}&year={year}&quarter={quarter}"
+    url = f"https://www.huduser.gov/hudapi/public/usps?type={type_id}&query={query_id}"+temp_usps_api_args_str
+
     token = digital_token
+
     headers = {"Authorization": "Bearer {0}".format(token)}
 
     response = requests.get(url, headers=headers)
