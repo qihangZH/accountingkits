@@ -3,7 +3,7 @@
 To Setup the package:
 
 ```shell
-git clone https://github.com/qihangZH/AccountingKits.git
+git clone https://github.com/qihangZH/accounting_kits.git
 cd accounting_kits
 python setup.py install
 ```
