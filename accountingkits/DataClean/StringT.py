@@ -2,19 +2,33 @@ import pandas as pd
 import numpy as np
 
 
-def suffix_remove_arr(listarrser, suffix_regex):
-    """Input the suffix regex to remove the suffix, unlike pd.str.removesuffix"""
+def suffix_remove_arr(listarrser, suffix_regex,**kwargs):
+    """
+    Input the suffix regex to remove the suffix, unlike pd.str.removesuffix
+    :param case: case to replace in the regex
+    """
+    case = kwargs['case'] if 'case' in kwargs else None
+
     temp_remove_suffix_arr = pd.Series(listarrser).astype(str).str.replace(
-            '('+suffix_regex+'){1}$','',case=False,regex=True).values
+            '('+suffix_regex+'){1}$', repl='',case=case,regex=True).values
 
     return temp_remove_suffix_arr
 
 
-def auto_suffix_remove_arr(listarrser, suffix_regex):
-    """Auto remove the suffix, which also remove the ',';'.';Space"""
+def seps_suffix_remove_arr(listarrser, suffix_regex, **kwargs):
+    """
+    Auto remove the suffix, which also remove the ',';'.';Space
+    :param case: case to replace in the regex
+    :param seps_regex: reps regex, which are sep before and after suffix. default '(,)|(\.)|( )'
+    """
+    case = kwargs['case'] if 'case' in kwargs else None
+    seps_regex = kwargs['seps_regex'] if 'seps_regex' in kwargs else '(,)|(\.)|( )|(;)'
+
     temp_remove_suffix_arr = pd.Series(listarrser).astype(str).str.replace(
-            '((,)|(\.)|( )){1}('+suffix_regex+'){1}((,)|(\.)|( ))*$','',case=False,regex=True)\
-            .str.replace('((,)|(\.)|( ))+$','',regex=True).values
+        f'({seps_regex})+(' + suffix_regex + '){1}' + f'({seps_regex})*$',
+        repl='',
+        case=case, regex=True
+    ).values
 
     return temp_remove_suffix_arr
 
