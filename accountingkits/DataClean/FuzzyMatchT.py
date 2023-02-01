@@ -79,16 +79,16 @@ def list_fuzzymatching_df(querying_listarr,choice_list,method,scorer):
 
         time_start = time.time()
         npapply_match_result_mat = np.apply_along_axis(
-            func1d=lambda x: thefuzz_process.extractOne(query=x[0],choices=CONST_choice_list,scorer=scorer),
+            func1d=lambda x: thefuzz_process.extractOne(query=x[0],choices=CONST_choice_list, scorer=scorer),
                                            arr=npapply_query_arr, axis=1)
         time_end = time.time()
         print('list_fuzzymatching_list method {} time cost'.format(method), time_end - time_start, 's')
 
         #  In after place match mean result from choice list
         #  Only Choose first two rows
-        match_result_df = pd.DataFrame(npapply_match_result_mat,columns=['match_list','match_score'])
+        match_result_df = pd.DataFrame(npapply_match_result_mat, columns=['match_list', 'match_score'])
 
-    elif method in ['multiprocessing','difflib']:
+    elif method in ['multiprocessing', 'difflib']:
         #  Slow when compare with others, However is useful
         _temp_loop_function = {
             'multiprocessing': __LAMBDA_taskof_list_fuzzymatching_list_tuple,
@@ -101,10 +101,13 @@ def list_fuzzymatching_df(querying_listarr,choice_list,method,scorer):
         temp_identifier_list = []
 
         with pathos.multiprocessing.Pool() as pool:
-            for result in tqdm.tqdm(pool.imap_unordered(
-                    _temp_loop_function,
-                    range(len(CONST_querying_listarr)))
-            ,total=len(CONST_querying_listarr)):
+            for result in tqdm.tqdm(
+                    pool.imap_unordered(
+                        _temp_loop_function,
+                        range(len(CONST_querying_listarr))
+                    ),
+                    total=len(CONST_querying_listarr)
+            ):
                 temp_matching_list.append(result[0][0])
                 temp_score_list.append(result[0][1])
                 temp_identifier_list.append(result[1])
@@ -112,14 +115,14 @@ def list_fuzzymatching_df(querying_listarr,choice_list,method,scorer):
         #  In after place match mean result from choice list
         mp_match_result_df = pd.DataFrame(
             {
-                'match_list':temp_matching_list,
-                'match_score':temp_score_list,
-                'identifier':temp_identifier_list
+                'match_list': temp_matching_list,
+                'match_score': temp_score_list,
+                'identifier': temp_identifier_list
 
             }
         )
-        mp_match_result_df = mp_match_result_df.sort_values(by='identifier',ascending=True)
-        match_result_df = mp_match_result_df[['match_list','match_score']].reset_index().copy()
+        mp_match_result_df = mp_match_result_df.sort_values(by='identifier', ascending=True)
+        match_result_df = mp_match_result_df[['match_list', 'match_score']].reset_index().copy()
         del match_result_df['index']
 
     elif method == 'rapidfuzz_cdist':
@@ -146,9 +149,9 @@ def list_fuzzymatching_df(querying_listarr,choice_list,method,scorer):
     match_result_df = match_result_df.copy()
     match_result_df['match_score'] = match_result_df['match_score'].astype(float)
     # make 0~100%
-    if np.all((match_result_df['match_score'].values >=0) &
-              (match_result_df['match_score'].values <=1)):
-        match_result_df['match_score'] = np.multiply(match_result_df['match_score'],100)
+    if np.all((match_result_df['match_score'].values >= 0) &
+              (match_result_df['match_score'].values <= 1)):
+        match_result_df['match_score'] = np.multiply(match_result_df['match_score'], 100)
         print(f'method {method},scorer {scorer} has *100 their scores')
 
     return match_result_df
@@ -182,14 +185,14 @@ def l1_auto_fuzzymatching_df(querying_listarr, choice_list, slicing_len, method,
         'TOTAL LENGTH of none SLICED data:{},SLICES be {} seps'.format(len(querying_arr), len(slice_arr))
     )
     if slice_arr[-1] != len(querying_arr):
-        slice_arr = np.append(slice_arr, len(querying_arr))#this step is run in 100% but not remove 'if'
+        slice_arr = np.append(slice_arr, len(querying_arr))  # his step is run in 100% but not remove 'if'
 
     for k in range(len(slice_arr) - 1):
         print('MATCH SLICE:{}~{}'.format(slice_arr[k], slice_arr[k + 1]))
         querying_k_arr = querying_arr[slice_arr[k]:slice_arr[k + 1]]
-        matchresult_k_df = list_fuzzymatching_df(querying_k_arr, choice_list, method=method,scorer=scorer)
+        matchresult_k_df = list_fuzzymatching_df(querying_k_arr, choice_list, method=method, scorer=scorer)
 
         df_concat_list.append(matchresult_k_df)
 
-    total_df = pd.concat(df_concat_list,axis=0)
+    total_df = pd.concat(df_concat_list, axis=0)
     return total_df

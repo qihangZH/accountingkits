@@ -2,34 +2,23 @@ import pandas as pd
 import numpy as np
 
 
-def suffix_remove_arr(listarrser, suffix_regex,**kwargs):
+def suffix_remove_arr(listarrser, suffix_regex: str, **kwargs):
     """
     Input the suffix regex to remove the suffix, unlike pd.str.removesuffix
-    :param case: case to replace in the regex
+    Anything you input will seem like a group for regex
+    :param listarrser: input array-like
+    :param suffix_regex: regex string of suffix to remove
+    :param kwargs:  pd.series.str.replace's other arguments;regex=True could not be changed
+        BASED ON:https://pandas.pydata.org/docs/reference/api/pandas.Series.str.replace.html
     """
-    case = kwargs['case'] if 'case' in kwargs else None
 
+    # examine
+    if (suffix_regex == '') or (not isinstance(suffix_regex, str)):
+        raise ValueError('suffix_regex must be string and should not be ""')
+
+    # core part
     temp_remove_suffix_arr = pd.Series(listarrser).astype(str).str.replace(
-            '('+suffix_regex+'){1}$', repl='',case=case,regex=True).values
-
-    return temp_remove_suffix_arr
-
-
-def seps_suffix_remove_arr(listarrser, suffix_regex, **kwargs):
-    """
-    Auto remove the suffix, which also remove seps like ',';'.';Space
-    :param kwargs:
-    case -> case to replace in the regex;
-    seps_regex -> reps regex, which are sep before and after suffix. default '(,)|(\.)|( )|(;)'
-    """
-    case = kwargs['case'] if 'case' in kwargs else None
-    seps_regex = kwargs['seps_regex'] if 'seps_regex' in kwargs else '(,)|(\.)|( )|(;)'
-
-    temp_remove_suffix_arr = pd.Series(listarrser).astype(str).str.replace(
-        f'({seps_regex})+(' + suffix_regex + '){1}' + f'({seps_regex})*$',
-        repl='',
-        case=case, regex=True
-    ).values
+        '(' + suffix_regex + '){1}$', repl='', regex=True, **kwargs).values
 
     return temp_remove_suffix_arr
 
@@ -50,9 +39,9 @@ def restore_leading_zeros_str_arr(listarrser, target_len):
     :param listarrser: INT list/array/ser which may lost leading zeros when saved
     :return: a string type array contains restored leading zeros
     """
-    if np.all(pd.Series(listarrser).apply(lambda x: isinstance(x,int))):
+    if np.all(pd.Series(listarrser).apply(lambda x: isinstance(x, int))):
         temp_string_ser = pd.Series(listarrser).astype(str)
-    elif np.all(pd.Series(listarrser).apply(lambda x: isinstance(x,str))):
+    elif np.all(pd.Series(listarrser).apply(lambda x: isinstance(x, str))):
         # to judge that if the string of data are int
         temp_string_ser = pd.Series(listarrser).astype(int).astype(str)
     else:
@@ -65,3 +54,42 @@ def restore_leading_zeros_str_arr(listarrser, target_len):
         lambda x: '0'*(target_len-len(x))+x
     )
     return dealed_string_ser
+
+
+# -----------------------------------------------------------------------------------------
+# """L1 Complex DataClean Functions"""#######################################################
+# -----------------------------------------------------------------------------------------
+def l1_suffix_and_around_remove_arr(listarrser, suffix_regex: str, around_regex: str, **kwargs):
+    """
+    REMOVE THE suffix, which ALSO remove all possible words or commas around it, like ',';'.';Space
+    Anything you input will seem like a group for regex.
+    WARNING: for set *, around_regex may work for ZERO TIME and CAUSE unintend results.
+    :param listarrser: input array-like
+    :param suffix_regex: regex string of suffix to remove
+    :param around_regex: around words/comma regex, which are sepS BEFORE AND AFTER the target suffix.
+    :param kwargs: pd.series.str.replace's other arguments-> case, flags, etc;regex=True could not be changed
+        BASED ON:https://pandas.pydata.org/docs/reference/api/pandas.Series.str.replace.html
+    """
+
+    # examine
+    if (suffix_regex == '') or (not isinstance(suffix_regex, str)):
+        raise ValueError('suffix_regex must be string and should not be ""')
+
+    # core part
+    if around_regex == '':
+        # temp_remove_suffix_arr = pd.Series(listarrser).astype(str).str.replace(
+        #     '(' + suffix_regex + '){1}$', repl='', case=case, regex=True).values
+        temp_remove_suffix_arr = suffix_remove_arr(
+            listarrser=listarrser,
+            suffix_regex=suffix_regex,
+            **kwargs
+        )
+    else:
+        temp_remove_suffix_arr = pd.Series(listarrser).astype(str).str.replace(
+            f'({around_regex})*'+'(' + suffix_regex + '){1}' + f'({around_regex})*$',
+            repl='',
+            regex=True,
+            **kwargs
+        ).values
+
+    return temp_remove_suffix_arr
