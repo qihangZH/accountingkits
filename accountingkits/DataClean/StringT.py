@@ -17,9 +17,10 @@ def suffix_remove_arr(listarrser, suffix_regex,**kwargs):
 
 def seps_suffix_remove_arr(listarrser, suffix_regex, **kwargs):
     """
-    Auto remove the suffix, which also remove the ',';'.';Space
-    :param case: case to replace in the regex
-    :param seps_regex: reps regex, which are sep before and after suffix. default '(,)|(\.)|( )'
+    Auto remove the suffix, which also remove seps like ',';'.';Space
+    :param kwargs:
+    case -> case to replace in the regex;
+    seps_regex -> reps regex, which are sep before and after suffix. default '(,)|(\.)|( )|(;)'
     """
     case = kwargs['case'] if 'case' in kwargs else None
     seps_regex = kwargs['seps_regex'] if 'seps_regex' in kwargs else '(,)|(\.)|( )|(;)'
