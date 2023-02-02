@@ -1,4 +1,4 @@
-from . import DataClean
+from . import DataPrepare
 from . import OSKit
 from . import Stats
 from . import _BasicFunc

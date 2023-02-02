@@ -57,7 +57,7 @@ def int_rangeselect_bool_arr(listarrser, floor:int, ceil:int,
     return bool_arr
 
 # -----------------------------------------------------------------------------------------
-# """L1 Complex DataClean Functions"""#######################################################
+# """L1 Complex DataPrepare Functions"""#######################################################
 # -----------------------------------------------------------------------------------------
 def l1_fininst_sic4naic6_selectbool_arr(SIC_listarrser, NAIC_listarrser, combine_method):
     """
