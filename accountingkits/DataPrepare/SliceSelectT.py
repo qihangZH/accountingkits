@@ -59,6 +59,8 @@ def int_rangeselect_bool_arr(listarrser, floor:int, ceil:int,
 # -----------------------------------------------------------------------------------------
 # """L1 Complex DataPrepare Functions"""#######################################################
 # -----------------------------------------------------------------------------------------
+
+
 def l1_fininst_sic4naic6_selectbool_arr(SIC_listarrser, NAIC_listarrser, combine_method):
     """
     :param SIC_listarrser: If None,then set None, or listarrser

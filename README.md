@@ -15,3 +15,8 @@ IF developing need:
 pip install -e .
 ```
 
+This package also include the works https://github.com/r-boulland/Corporate-Website-Disclosure, I rewrite their functions to a new class in my kits.
+
+References:
+
+1. https://github.com/r-boulland/Corporate-Website-Disclosure 
