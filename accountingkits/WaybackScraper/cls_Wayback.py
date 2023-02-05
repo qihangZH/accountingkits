@@ -49,6 +49,9 @@ class Wayback:
 
     def __init__(self, PATH, contact='youremail@domain.com', **kwargs):
         """
+        Modified from origin Romain Boulland, Thomas Bourveau, Matthias Breuer's work
+        Author: Qihang Zhang in 2023/02/03,National University of Singapore,
+        NUS Business School, Department of Accounting
         :param kwargs: useragent/alpha_token/word_len/stop_words/stemmer/STATUS_CODE/MIME_TYPE/
                         HEADERS/MAX_URL/MAX_SUB/PARSER/RAW/BOW_OPTIONS/PATH
                         see:https://github.com/r-boulland/Corporate-Website-Disclosure
