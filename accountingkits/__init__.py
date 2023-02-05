@@ -5,7 +5,7 @@ from . import WaybackScraper
 from . import _BasicFunc
 
 
-__version__ = '0.1.1.230203_alpha'
+__version__ = '0.1.1.230205_alpha'
 print('\033[34m accountingkits Version: {}\033[0m'.format(__version__))
 
 """

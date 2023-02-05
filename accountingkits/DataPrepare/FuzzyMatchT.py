@@ -1,3 +1,4 @@
+import warnings
 import tqdm
 import numpy as np
 import pandas as pd
@@ -8,7 +9,7 @@ import time
 from thefuzz import process as thefuzz_process
 
 
-def list_fuzzymatching_df(querying_listarr,choice_list,method,scorer):
+def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
     """
     lisklikearray->fuzzymatch with a LIST. scorer I prefer rapidfuzz.fuzz.ratio(Normalize levenshtein)
     :param querying_listarr:~
@@ -18,16 +19,33 @@ def list_fuzzymatching_df(querying_listarr,choice_list,method,scorer):
             classic normalized_levenshtein be fuzz.ratio,however be useless in difflib method
     :return: result dataframe
     """
-    if (sum(pd.Series(querying_listarr).isna())!=0)|(sum(pd.Series(choice_list).isna())!=0):
-        raise ValueError(
-        "Error:querying_listarr/choice_list are not ZERO NULL/NAN OBS:'\n"+
-        f"querying_listarr {sum(pd.Series(querying_listarr).isna())} NA," +
-        f" choice_list {sum(pd.Series(choice_list).isna())} NA")
 
-    #  should not make choice list duplicated
+    # 0.1.1.230205_alpha-> new version only check the n.a. of query list, automatically remove choices duplicates/na >>>
+    """
+    deprecated old version, 0.1.1.230203_alpha
+    
+    if (sum(pd.Series(querying_listarr).isna()) != 0) | (sum(pd.Series(choice_list).isna()) != 0):
+        raise ValueError(
+            "Error:querying_listarr/choice_list are not ZERO NULL/NAN OBS:'\n" +
+            f"querying_listarr {sum(pd.Series(querying_listarr).isna())} NA," +
+            f" choice_list {sum(pd.Series(choice_list).isna())} NA"
+        )
+    
     if np.any(pd.Series(choice_list).duplicated()):
         raise ValueError('Error:there are duplicated in choice list, may cause confusing result')
-    #SET constants
+    """
+
+    if np.any(pd.Series(querying_listarr).isna()):
+        raise ValueError("\033[31mNull/Na in querying list may cause confounding\033[0m")
+
+    if np.any(pd.Series(choice_list).duplicated()) or np.any(pd.Series(choice_list).isna()):
+        warnings.warn(
+            "\033[31mDuplicates or Null/Na in choices are detected and automatically removed\033[0m"
+        )
+        choice_list = pd.Series(choice_list).dropna().drop_duplicates().to_list()
+    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    # set constants
     """CONSTANTS CAN NOT BE CHANGED"""
     CONST_querying_listarr = pd.Series(querying_listarr).astype(str).tolist()
     CONST_choice_list = pd.Series(choice_list).astype(str).tolist()
@@ -42,7 +60,7 @@ def list_fuzzymatching_df(querying_listarr,choice_list,method,scorer):
             choices=CONST_choice_list,
             scorer=scorer
         )
-        return (value,identifier)
+        return (value, identifier)
 
     """Dropped, for even slower then npapply and totally unstable, WRONG OUTPUTS MOSTTIMES"""
     # def __LAMBDA_taskof_list_rapidFM_list_tuple(identifier):
@@ -63,24 +81,24 @@ def list_fuzzymatching_df(querying_listarr,choice_list,method,scorer):
         :return:
         """
         temp_input = CONST_querying_listarr[identifier]
-        match_result = difflib.get_close_matches(word=temp_input,possibilities=CONST_choice_list, n=1)
+        match_result = difflib.get_close_matches(word=temp_input, possibilities=CONST_choice_list, n=1)
         if match_result == []:
             match_result = ''
         else:
             match_result = match_result[0]
         match_scores = difflib.SequenceMatcher(None, match_result, temp_input).ratio()
         #  *100
-        value = (match_result,match_scores)
+        value = (match_result, match_scores)
 
-        return (value,identifier)
+        return (value, identifier)
 
     if method == 'npapply':
-        npapply_query_arr = np.array(CONST_querying_listarr)[:,np.newaxis]
+        npapply_query_arr = np.array(CONST_querying_listarr)[:, np.newaxis]
 
         time_start = time.time()
         npapply_match_result_mat = np.apply_along_axis(
-            func1d=lambda x: thefuzz_process.extractOne(query=x[0],choices=CONST_choice_list, scorer=scorer),
-                                           arr=npapply_query_arr, axis=1)
+            func1d=lambda x: thefuzz_process.extractOne(query=x[0], choices=CONST_choice_list, scorer=scorer),
+            arr=npapply_query_arr, axis=1)
         time_end = time.time()
         print('list_fuzzymatching_list method {} time cost'.format(method), time_end - time_start, 's')
 
@@ -156,9 +174,10 @@ def list_fuzzymatching_df(querying_listarr,choice_list,method,scorer):
 
     return match_result_df
 
-# -----------------------------------------------------------------------------------------
-# """L1 Complex DataPrepare Functions"""#######################################################
-# -----------------------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------------------------------------------------
+# """L1 Complex DataPrepare Functions"""################################################################################
+# ----------------------------------------------------------------------------------------------------------------------
 
 
 def l1_auto_fuzzymatching_df(querying_listarr, choice_list, slicing_len, method, scorer):
@@ -176,7 +195,20 @@ def l1_auto_fuzzymatching_df(querying_listarr, choice_list, slicing_len, method,
             classic normalized_levenshtein be fuzz.ratio,however be useless in difflib method
     :return: result dataframe
     """
-    df_concat_list = []
+
+    # 0.1.1.230205_alpha-> new version only check the n.a. of query list, automatically remove choices duplicates/na >>>
+
+    # add this only for not raise Value-error after running long-time script
+    if np.any(pd.Series(querying_listarr).isna()):
+        raise ValueError("\033[31mAuto Function->Null/Na in querying list may cause confounding\033[0m")
+
+    # add this to avoid waste of performance and consistency
+    if np.any(pd.Series(choice_list).duplicated()) or np.any(pd.Series(choice_list).isna()):
+        warnings.warn(
+            "\033[31mAuto Function->Duplicates or Null/Na in choices are detected and automatically removed\033[0m"
+        )
+        choice_list = pd.Series(choice_list).dropna().drop_duplicates().to_list()
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
     querying_arr = np.array(querying_listarr)
     # slicing for memory easier use.
@@ -185,8 +217,9 @@ def l1_auto_fuzzymatching_df(querying_listarr, choice_list, slicing_len, method,
         'TOTAL LENGTH of none SLICED data:{},SLICES be {} seps'.format(len(querying_arr), len(slice_arr))
     )
     if slice_arr[-1] != len(querying_arr):
-        slice_arr = np.append(slice_arr, len(querying_arr))  # his step is run in 100% but not remove 'if'
+        slice_arr = np.append(slice_arr, len(querying_arr))   # his step is run in 100% but not remove 'if'
 
+    df_concat_list = []
     for k in range(len(slice_arr) - 1):
         print('MATCH SLICE:{}~{}'.format(slice_arr[k], slice_arr[k + 1]))
         querying_k_arr = querying_arr[slice_arr[k]:slice_arr[k + 1]]
