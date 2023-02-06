@@ -5,7 +5,7 @@ import warnings
 from .. import _BasicFunc
 
 
-def check_make_directory(check_make_dir, force=False):
+def check_make_directory(check_make_dir, force: bool = False):
     """
     Check and Make directory
     :param check_make_dir: the directory you hope to check-make
