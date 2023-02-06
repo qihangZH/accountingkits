@@ -1,27 +1,27 @@
 import os
 import numpy as np
 import pandas as pd
-
+import warnings
 from .. import _BasicFunc
 
 
-def check_make_directory(check_make_dir):
-    """Check and Make directory"""
+def check_make_directory(check_make_dir, force=False):
+    """
+    Check and Make directory
+    :param check_make_dir: the directory you hope to check-make
+    :param force: is force to make the recursive dirs
+    """
     folder = os.path.exists(check_make_dir)
 
     if not folder:
-        os.mkdir(check_make_dir)
-        print('Make dir:{}'.format(check_make_dir))
-    else:
-        print('{} already exist.'.format(check_make_dir))
+        if force:
+            warnings.warn("\033[31myou already set 'force=True' for recursive, however unsafe\033[0m", UserWarning)
+            temp_folder_maker = os.makedirs
+        else:
+            temp_folder_maker = os.mkdir
 
+        temp_folder_maker(check_make_dir)
 
-def check_make_directory_recursive(check_make_dir):
-    """Check and Make directory, recursive and force"""
-    folder = os.path.exists(check_make_dir)
-
-    if not folder:
-        os.makedirs(check_make_dir)
         print('Make dir:{}'.format(check_make_dir))
     else:
         print('{} already exist.'.format(check_make_dir))
