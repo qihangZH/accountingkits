@@ -15,6 +15,7 @@ from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 from io import BytesIO
 
+import fake_useragent
 """
 Author: Romain Boulland, Thomas Bourveau, Matthias Breuer
 Date: Jun 24, 2021
@@ -56,11 +57,22 @@ class Wayback:
                         HEADERS/MAX_URL/MAX_SUB/PARSER/RAW/BOW_OPTIONS/PATH
                         see:https://github.com/r-boulland/Corporate-Website-Disclosure
         """
+        # old-version -> new version, use random fake useragent instead of manuall input>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        """
         useragent = kwargs['useragent'] if 'useragent' in kwargs else 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' \
                                                                       'AppleWebKit/537.36 (KHTML, like Gecko) ' \
                                                                       'Chrome/42.0.2311.135 Safari/537.36 Edge/13.10586'
         if not ('useragent' in kwargs):
             warnings.warn('Set your own useragent for safer using, like https://zhuanlan.zhihu.com/p/97973031')
+        """
+        # old version: 0.1.1.230208_alpha deprecate <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+        useragent = kwargs['useragent'] if 'useragent' in kwargs else fake_useragent.UserAgent(
+            browsers=["chrome", "edge", "internet explorer", "firefox"]
+        ).random
+        if not ('useragent' in kwargs):
+            print('\n', f'Automatically generate fake useragent:{useragent}', '\n')
+
         # Some Settings
         alpha_token = kwargs['alpha_token'] if 'alpha_token' in kwargs else True
 
