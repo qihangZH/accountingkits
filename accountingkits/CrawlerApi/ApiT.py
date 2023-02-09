@@ -43,6 +43,3 @@ def usps_crosswalk_api_df(digital_token: str,
         temp_df = pd.DataFrame(response.json()["data"]["results"])
 
     return temp_df
-
-
-

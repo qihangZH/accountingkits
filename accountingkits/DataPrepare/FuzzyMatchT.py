@@ -39,8 +39,8 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
         raise ValueError("\033[31mNull/Na in querying list may cause confounding\033[0m")
 
     if np.any(pd.Series(choice_list).duplicated()) or np.any(pd.Series(choice_list).isna()):
-        warnings.warn(
-            "\033[31mDuplicates or Null/Na in choices are detected and automatically removed\033[0m"
+        print(
+            "\nDuplicates or Null/Na in choices are detected and automatically removed\n"
         )
         choice_list = pd.Series(choice_list).dropna().drop_duplicates().to_list()
     # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -204,8 +204,8 @@ def l1_auto_fuzzymatching_df(querying_listarr, choice_list, slicing_len, method,
 
     # add this to avoid waste of performance and consistency
     if np.any(pd.Series(choice_list).duplicated()) or np.any(pd.Series(choice_list).isna()):
-        warnings.warn(
-            "\033[31mAuto Function->Duplicates or Null/Na in choices are detected and automatically removed\033[0m"
+        print(
+            "\nDuplicates or Null/Na in choices are detected and automatically removed\n"
         )
         choice_list = pd.Series(choice_list).dropna().drop_duplicates().to_list()
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
