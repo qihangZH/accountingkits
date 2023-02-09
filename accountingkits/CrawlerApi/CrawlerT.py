@@ -12,7 +12,8 @@ def crawler_google_search_url_df(query_listarrser, target_urls_nums: int, method
                          is_auto_extend_stop: bool, request_deny_wait_time, sleep_func=None,
                          **kwargs):
     """
-    Use Google search to search the result of list, actually is a kind of crawler
+    Use Google search to search the result of list of URLS, actually is a kind of crawler
+    return url results
 
     :param query_listarrser: target search array-like
     :param target_urls_nums: the search result num propose to get
