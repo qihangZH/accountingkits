@@ -24,7 +24,7 @@ def crawler_google_search_url_df(query_listarrser, target_urls_nums: int, method
     :param request_deny_wait_time: how much secs to wait when request deny and try again
     :param kwargs: other arguments of googlesearch.search(),https://python-googlesearch.readthedocs.io/en/latest/
     """
-    warnings.warn('AlphaVersion->This function have not passed the the test!', DeprecationWarning)
+    warnings.warn('AlphaVersion->This function is unstable to use for banned IP in test!', DeprecationWarning)
 
     if ('pause' in kwargs) and (not (sleep_func is None)):
         raise ValueError('Do not make pause/sleepfunc input together')
@@ -36,7 +36,7 @@ def crawler_google_search_url_df(query_listarrser, target_urls_nums: int, method
 
     query_ser = pd.Series(query_listarrser)
 
-    if method == 'loop':
+    if method == 'python_loop':
 
         agg_results_google_url_list = []
 
