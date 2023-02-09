@@ -6,11 +6,12 @@ import warnings
 import numpy as np
 import pandas as pd
 
-
 """UNSTABLE, Have Not Passed the Test"""
+
+
 def crawler_google_search_url_df(query_listarrser, target_urls_nums: int, method,
-                         is_auto_extend_stop: bool, request_deny_wait_time, sleep_func=None,
-                         **kwargs):
+                                 is_auto_extend_stop: bool, request_deny_wait_time, sleep_func=None,
+                                 **kwargs):
     """
     Use Google search to search the result of list of URLS, actually is a kind of crawler
     return url results
@@ -54,7 +55,7 @@ def crawler_google_search_url_df(query_listarrser, target_urls_nums: int, method
                 while not (len(temp_search_list) >= target_urls_nums):
                     try:
                         temp_search_list = [search_result for search_result in googlesearch.search(search_item,
-                                                                                               **kwargs)]
+                                                                                                   **kwargs)]
                         search_stop += max(int(target_urls_nums / 2), 5)
 
                         temp_search_list = temp_search_list[:target_urls_nums] \
@@ -67,7 +68,7 @@ def crawler_google_search_url_df(query_listarrser, target_urls_nums: int, method
             else:
                 try:
                     temp_search_list = [search_result for search_result in googlesearch.search(search_item,
-                                                                                           **kwargs)]
+                                                                                               **kwargs)]
 
                     temp_search_list = temp_search_list[:target_urls_nums] \
                         if len(temp_search_list) >= target_urls_nums \
