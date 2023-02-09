@@ -10,7 +10,8 @@ def usps_crosswalk_api_df(digital_token: str,
                           ):
     """
     More information see https://www.huduser.gov/portal/dataset/uspszip-api.html
-    :param digital_token:
+
+    :param digital_token: register to upper url for special token
     :param type_id:
     :param query_id:
     :param year:
@@ -42,3 +43,6 @@ def usps_crosswalk_api_df(digital_token: str,
         temp_df = pd.DataFrame(response.json()["data"]["results"])
 
     return temp_df
+
+
+

@@ -4,7 +4,7 @@ from . import NaDupOutlierT
 from . import ReaderT
 from . import SliceSelectT
 from . import StringT
-from . import CurlApiT
+
 # -----------------------------------------------------------------------------------------
 # """level1 Complex DataPrepare Functions"""#################################################
 # -----------------------------------------------------------------------------------------
