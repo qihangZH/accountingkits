@@ -16,7 +16,7 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
     :param choice_list:~
     :param method: npapply/multiprocessing/rapidfuzz_cdist/difflib,difflib use special method to match, Not levenshtein
     :param scorer: the scorer of fuzzymatch, it could be changed to different result,
-            classic normalized_levenshtein be fuzz.ratio,however be useless in difflib method
+            classic normalized_levenshtein be rapidfuzz.fuzz.ratio,however be useless in difflib method
     :return: result dataframe
     """
 
