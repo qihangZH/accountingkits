@@ -7,7 +7,7 @@ from . import _BasicFunc
 
 
 __version__ = '0.1.1.230209_alpha'
-print('\033[34m accountingkits Version: {}\033[0m'.format(__version__))
+# print('\033[34m accountingkits Version: {}\033[0m'.format(__version__))
 
 """
 package principle:
