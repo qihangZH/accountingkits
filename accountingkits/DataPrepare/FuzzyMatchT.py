@@ -1,4 +1,3 @@
-import warnings
 import tqdm
 import numpy as np
 import pandas as pd
@@ -7,6 +6,7 @@ import difflib
 import rapidfuzz
 import time
 from thefuzz import process as thefuzz_process
+from .. import _BasicFunc
 
 
 def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
@@ -118,7 +118,10 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
         temp_score_list = []
         temp_identifier_list = []
 
-        with pathos.multiprocessing.Pool() as pool:
+        with pathos.multiprocessing.Pool(
+                # for safer exception in multiprocess
+                initializer=_BasicFunc.MultiprocessF.threads_interrupt_initiator
+        ) as pool:
             for result in tqdm.tqdm(
                     pool.imap_unordered(
                         _temp_loop_function,
