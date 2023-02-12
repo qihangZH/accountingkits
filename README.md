@@ -29,7 +29,7 @@ For example in FuzzyMatchT.py:
 from .. import _BasicFunc
 ```
 
-To search you can find that, "_BasicFunc" result contains:
+To search in FuzzyMatch.py,you can find that, "_BasicFunc" result contains:
 
 ```python
 with pathos.multiprocessing.Pool(
