@@ -46,7 +46,7 @@ NUS Business School, Department of Accounting
 # PATH = config.path
 
 
-class Wayback:
+class WayBack:
 
     def __init__(self, PATH, contact='youremail@domain.com', **kwargs):
         """

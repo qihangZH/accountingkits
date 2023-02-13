@@ -6,4 +6,4 @@ Author: Qihang Zhang in 2023/02/03,National University of Singapore,
 NUS Business School, Department of Accounting
 """
 from . import WaybkJsonToCsvT
-from . import cls_Wayback
+from . import cls_WayBack

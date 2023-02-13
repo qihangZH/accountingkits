@@ -6,7 +6,7 @@ from . import CrawlerApi
 from . import _BasicFunc
 
 
-__version__ = '0.1.1.230209_alpha'
+__version__ = '0.1.1.230212_alpha'
 # print('\033[34m accountingkits Version: {}\033[0m'.format(__version__))
 
 """
