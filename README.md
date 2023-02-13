@@ -1,6 +1,5 @@
 # Accounting Kits
 
-For any question, feel free to contact with me by e0952154@u.nus.edu
 
 This is a self-made package which target is help to deal with different problems in accounting research.
 
