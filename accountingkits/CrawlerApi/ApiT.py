@@ -2,7 +2,7 @@ import pandas as pd
 import requests
 
 
-def usps_crosswalk_api_df(digital_token: str,
+def api_usps_crosswalk_df(digital_token: str,
                           type_id: int,
                           query_id,
                           year: int,
@@ -43,3 +43,9 @@ def usps_crosswalk_api_df(digital_token: str,
         temp_df = pd.DataFrame(response.json()["data"]["results"])
 
     return temp_df
+
+
+def api_google_search_url_df(query_listarrser, target_urls_nums: int, method,
+                                 is_auto_extend_stop: bool, request_deny_wait_time, sleep_func=None,
+                                 **kwargs):
+    pass
