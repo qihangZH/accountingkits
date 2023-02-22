@@ -192,8 +192,6 @@ def l1_auto_fuzzymatching_df(querying_listarr, choice_list, slicing_len, method,
     :param choice_list:~
     :param method: npapply/multiprocessing/rapidfuzz_cdist/difflib
                 ,difflib use special method to match, Not levenshtein
-                To use "rapidfuzz_cdist_...",start with this and end with scorer's name.
-                like:'rapidfuzz_cdist_WRatio'
     :param scorer: the scorer of fuzzymatch, it could be changed to different result,
             classic normalized_levenshtein be fuzz.ratio,however be useless in difflib method
     :return: result dataframe
