@@ -1,4 +1,5 @@
 import pandas as pd
+import sas7bdat
 
 
 def harte_hanks_txt_reader_2019_2021_df(PATH, **kwargs):
@@ -32,6 +33,18 @@ def harte_hanks_txt_reader_1996_2015_df(PATH, **kwargs):
     temp_df = pd.read_csv(
         filepath_or_buffer=PATH, encoding="ISO-8859-1", sep='\t', low_memory=False, **kwargs
     )
+    return temp_df
+
+
+def sas7bdat_reader_df(path, **kwargs):
+    """
+    read .sas7bdat data by sas7bdat.SAS7BDAT
+    :param path: path to read, must have
+    :param kwargs: other arguments of sas7bdat.SAS7BDAT(), see https://pyhacker.com/pages/sas7bdat.html
+    """
+    with sas7bdat.SAS7BDAT(path=path, **kwargs) as result:
+        temp_df = result.to_data_frame()
+
     return temp_df
 
 
