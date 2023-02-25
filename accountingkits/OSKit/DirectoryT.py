@@ -60,7 +60,7 @@ def dir_colnames_df(read_df_func, read_dir, suffix_regex: str, **kwargs):
         print(f'\033[31m{e} occurs in suffix regex using, \nhowever pass file suffix detecting, use all files\033[0m')
 
     # print the detect result of the function...
-    print('FILENAMES:', file_arr)
+    print('FILENAMES:\n', file_arr)
 
     # get read_sample to ensure the readfunc return dataframe
     read_sample = read_df_func(read_dir + file_arr[0])
