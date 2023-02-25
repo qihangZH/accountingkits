@@ -36,7 +36,7 @@ def dir_colnames_df(read_df_func, read_dir, suffix_regex: str, **kwargs):
     :param read_dir: the directory of the datas saved
     :param suffix_regex: suffix regex to search for files, however, should be type in "regex" to search.
         if you need to set Nothing, then simply use '', None, etc...
-    :param kwargs: other arguments which pandas.Series.str.contains() use, see:
+    :param kwargs: other arguments for suffix regex detect file names which pandas.Series.str.contains() use, see:
         https://pandas.pydata.org/docs/reference/api/pandas.Series.str.contains.html,
         however, regex=True,pat=patterns(special) can not be modified.
     :return: dataframe of output cols
