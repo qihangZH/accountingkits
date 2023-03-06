@@ -4,6 +4,7 @@ from . import Stats
 from . import WaybackScraper
 from . import CrawlerApi
 from . import _BasicFunc
+from ._version import __version__
 
 """
 package principle:
