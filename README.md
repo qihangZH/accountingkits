@@ -3,6 +3,10 @@
 
 This is a self-made package which target is help to deal with different problems in accounting research.
 
+<font color="red">
+WARNING: This version is Still PREVIEW and UNSTABLE! 
+ANY functions and classes COULD BE CHANGED (NAMES OR OTHERS) IN  FUTURE!</font>
+
 ## 1. Setup the package:
 
 ```shell
@@ -15,7 +19,7 @@ If developing need:
 
 ```shell
 #IF DEVELOPING
-pip install -e .
+python setup.py develop
 ```
 
 ## 2. How if  I need to use the single module But I find it use other modules?
