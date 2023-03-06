@@ -4,11 +4,6 @@ from . import Stats
 from . import WaybackScraper
 from . import CrawlerApi
 from . import _BasicFunc
-import os
-
-# get the version information from VERSION.txt
-with open(os.path.join(os.path.dirname(__file__), '..', 'VERSION.txt'), 'r') as f:
-    __version__ = f.read().strip()
 
 """
 package principle:
