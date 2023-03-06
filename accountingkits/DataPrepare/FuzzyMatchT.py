@@ -5,7 +5,7 @@ import pathos
 import difflib
 import rapidfuzz
 import time
-from thefuzz import process as thefuzz_process
+import thefuzz.process
 from .. import _BasicFunc
 
 
@@ -55,7 +55,7 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
         :param identifier:identifier
         :return: results tuple
         """
-        value = thefuzz_process.extractOne(
+        value = thefuzz.process.extractOne(
             query=CONST_querying_listarr[identifier],
             choices=CONST_choice_list,
             scorer=scorer
@@ -97,7 +97,7 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
 
         time_start = time.time()
         npapply_match_result_mat = np.apply_along_axis(
-            func1d=lambda x: thefuzz_process.extractOne(query=x[0], choices=CONST_choice_list, scorer=scorer),
+            func1d=lambda x: thefuzz.process.extractOne(query=x[0], choices=CONST_choice_list, scorer=scorer),
             arr=npapply_query_arr, axis=1)
         time_end = time.time()
         print('list_fuzzymatching_list method {} time cost'.format(method), time_end - time_start, 's')
