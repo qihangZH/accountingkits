@@ -8,6 +8,7 @@ setuptools.setup(
     description='The kit-package which made for accounting science research',
     author='zhang qihang',
     author_email='694499657@qq.com',
+    url='https://github.com/qihangZH/accountingkits',
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=setuptools.find_packages(),
