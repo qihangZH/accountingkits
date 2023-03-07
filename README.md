@@ -74,8 +74,12 @@ with pathos.multiprocessing.Pool(
     
 ```
 
-## 3. Changes
-Any changes will be placed here.
+## 3. Deprecation and Future Warnings
+**Any changes which cause Deprecation and Future Warnings will be placed here, mostly they cause version error.**
+
+**If not, kindly send me email and I will show it in README.**
+
+**However, Deprecation and Future warnings are unavailable for Preview/alpha/beta version**
 
 
 ## 4.References
