@@ -4,11 +4,27 @@
 
 This is a self-made package which target is help to deal with different problems in accounting research.
 
-<font color="red">
-WARNING: This version is Still PREVIEW and UNSTABLE! 
-ANY functions and classes COULD BE CHANGED (NAMES OR OTHERS) IN  FUTURE!</font>
+
+**WARNING: This version is Still PREVIEW and UNSTABLE! 
+ANY functions and classes COULD BE CHANGED (NAMES OR OTHERS) IN  FUTURE!**
 
 ## 1. Setup the package:
+
+I recommend to install the package by conda-forge, or may cause error:
+```
+numpy
+pandas
+pathos
+requests
+python-Levenshtein
+thefuzz
+rapidfuzz
+sas7bdat
+nltk
+beautifulsoup4
+fake-useragent
+Cython
+```
 
 ```shell
 git clone https://github.com/qihangZH/accountingkits.git
