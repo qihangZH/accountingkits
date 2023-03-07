@@ -76,7 +76,7 @@ with pathos.multiprocessing.Pool(
 
 
 
-## 3.Other
+## 3.References
 
 1. This project includes code from the https://github.com/r-boulland/Corporate-Website-Disclosure, 
 which is licensed under the MIT license. 
