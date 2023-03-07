@@ -1,5 +1,6 @@
 # Accounting Kits
 
+**Recommend CONDA manage the dependencies.**
 
 This is a self-made package which target is help to deal with different problems in accounting research.
 
