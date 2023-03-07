@@ -78,8 +78,6 @@ with pathos.multiprocessing.Pool(
 
 ## 3.Other
 
-This package also include the works https://github.com/r-boulland/Corporate-Website-Disclosure, I rewrite their functions to a new class in my kits.
-
-References:
-
-1. https://github.com/r-boulland/Corporate-Website-Disclosure 
+1. This project includes code from the https://github.com/r-boulland/Corporate-Website-Disclosure, 
+which is licensed under the MIT license. 
+The full text of the MIT license can be found in the WaybackScraper/LICENSE file.
