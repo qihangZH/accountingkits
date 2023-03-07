@@ -26,6 +26,8 @@ fake-useragent
 Cython
 ```
 
+then clone->install
+
 ```shell
 git clone https://github.com/qihangZH/accountingkits.git
 cd accountingkits
