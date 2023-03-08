@@ -12,6 +12,7 @@ ANY functions and classes COULD BE CHANGED (NAMES OR OTHERS) IN  FUTURE!**
 
 I recommend to install the package by conda-forge, or may cause error:
 ```
+certifi
 numpy
 pandas
 pathos
