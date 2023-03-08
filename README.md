@@ -11,6 +11,14 @@ ANY functions and classes COULD BE CHANGED (NAMES OR OTHERS) IN  FUTURE!**
 ## 1. Setup the package:
 
 I recommend to install the package by conda-forge, or may cause error:
+
+In rolling version(How ever the package itself would be stop from have dependencies),
+because I use conda to manage my package, but pip always try to corrupt my environment.
+
+This make me could not put these following dependencies in setup.cfg, 
+If there found any method to help me to manage the environment while could help you with dependencies,
+feel free to tell me, it is the first time for me to write the python package, thank you.
+
 ```
 certifi
 numpy
