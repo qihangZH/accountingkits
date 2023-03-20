@@ -51,7 +51,7 @@ def restore_leading_zeros_str_arr(listarrser, target_len):
         raise ValueError('The max length of elements bigger than target length')
 
     dealed_string_ser = temp_string_ser.apply(
-        lambda x: '0'*(target_len-len(x))+x
+        lambda x: '0' * (target_len - len(x)) + x
     )
     return dealed_string_ser
 
@@ -59,7 +59,7 @@ def restore_leading_zeros_str_arr(listarrser, target_len):
 # -----------------------------------------------------------------------------------------
 # """L1 Complex DataPrepare Functions"""#######################################################
 # -----------------------------------------------------------------------------------------
-def l1_suffix_and_around_remove_arr(listarrser, suffix_regex: str, around_regex: str, **kwargs):
+def l1_suffix_and_around_remove_arr(listarrser, suffix_regex: str, around_regex: str = '', **kwargs):
     """
     REMOVE THE suffix, which ALSO remove all possible words or commas around it, like ',';'.';Space
     Anything you input will seem like a group for regex.
@@ -86,7 +86,7 @@ def l1_suffix_and_around_remove_arr(listarrser, suffix_regex: str, around_regex:
         )
     else:
         temp_remove_suffix_arr = pd.Series(listarrser).astype(str).str.replace(
-            f'({around_regex})*'+'(' + suffix_regex + '){1}' + f'({around_regex})*$',
+            f'({around_regex})*' + '(' + suffix_regex + '){1}' + f'({around_regex})*$',
             repl='',
             regex=True,
             **kwargs
