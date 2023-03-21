@@ -4,6 +4,12 @@ import warnings
 
 
 def summary_quantile_ser(arrser):
+    """
+    summary of a array-like data, use describe if work error.
+
+    :param arrser: the array or ser to got the result, however list may works
+    return: pd.Series, result of summary
+    """
     try:
         return pd.Series({
             'Mean': np.nanmean(arrser),
