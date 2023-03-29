@@ -3,33 +3,33 @@ import pandas as pd
 
 
 def sic4_fininst_select_bool_arr(listarrser):
-    #2022/12/15
+    # 2022/12/15
     # temp_arr = pd.Series(listarrser).astype('int32').values
-    #Set again:
+    # Set again:
     # pandas.errors.IntCastingNaNError: Cannot convert non-finite values (NA or inf) to integer
     temp_ser = pd.Series(listarrser).copy()
     bool_notNA_ser = ~(temp_ser.isna())
     temp_ser[bool_notNA_ser] = (temp_ser[bool_notNA_ser]).apply('int32')
 
-    bool_arr = (np.greater_equal(temp_ser.values,6000) & np.less_equal(temp_ser.values,6999))
+    bool_arr = (np.greater_equal(temp_ser.values, 6000) & np.less_equal(temp_ser.values, 6999))
     return bool_arr
 
 
 def naic6_fininst_select_bool_arr(listarrser):
-    #Set again:
+    # Set again:
     # pandas.errors.IntCastingNaNError: Cannot convert non-finite values (NA or inf) to integer
     temp_ser = pd.Series(listarrser).copy()
     bool_notNA_ser = ~(temp_ser.isna())
     temp_ser[bool_notNA_ser] = (temp_ser[bool_notNA_ser]).apply('int32')
 
-    bool_arr = (np.greater_equal(temp_ser.values,520000) & np.less_equal(temp_ser.values,529999))
+    bool_arr = (np.greater_equal(temp_ser.values, 520000) & np.less_equal(temp_ser.values, 529999))
     return bool_arr
 
 
-def int_rangeselect_bool_arr(listarrser, floor:int, ceil:int,
-                             include_floor_bool:bool,
-                             include_ceil_bool:bool
-                             ) :
+def int_rangeselect_bool_arr(listarrser, floor: int, ceil: int,
+                             include_floor_bool: bool,
+                             include_ceil_bool: bool
+                             ):
     """
     Universal function,select bool array from already exist listarrser, Likely to "NAIC_bank_select_bool_arr"
 
@@ -40,21 +40,22 @@ def int_rangeselect_bool_arr(listarrser, floor:int, ceil:int,
     :param include_ceil_bool: include ceil or not
     :return: bool arr for selection outcomes
     """
-    if isinstance(include_floor_bool,bool) and isinstance(include_ceil_bool,bool):
+    if isinstance(include_floor_bool, bool) and isinstance(include_ceil_bool, bool):
         pass
     else:
         raise ValueError('include_floor_bool,include_ceil_bool should be bool')
 
     temp_floor_func = np.greater_equal if include_floor_bool else np.greater
     temp_ceil_func = np.less_equal if include_ceil_bool else np.less
-    #Set again:
+    # Set again:
     # pandas.errors.IntCastingNaNError: Cannot convert non-finite values (NA or inf) to integer
     temp_ser = pd.Series(listarrser).copy()
     bool_notNA_ser = ~(temp_ser.isna())
     temp_ser[bool_notNA_ser] = (temp_ser[bool_notNA_ser]).apply('int32')
 
-    bool_arr = (temp_floor_func(temp_ser.values,floor) & temp_ceil_func(temp_ser.values,ceil))
+    bool_arr = (temp_floor_func(temp_ser.values, floor) & temp_ceil_func(temp_ser.values, ceil))
     return bool_arr
+
 
 # -----------------------------------------------------------------------------------------
 # """L1 Complex DataPrepare Functions"""#######################################################
