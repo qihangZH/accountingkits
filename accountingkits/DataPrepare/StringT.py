@@ -50,10 +50,10 @@ def restore_leading_zeros_str_arr(listarrser, target_len):
     if np.nanmax(temp_string_ser.apply(len)) > target_len:
         raise ValueError('The max length of elements bigger than target length')
 
-    dealed_string_ser = temp_string_ser.apply(
+    dealed_string_arr = temp_string_ser.apply(
         lambda x: '0' * (target_len - len(x)) + x
-    )
-    return dealed_string_ser
+    ).values
+    return dealed_string_arr
 
 
 # -----------------------------------------------------------------------------------------
