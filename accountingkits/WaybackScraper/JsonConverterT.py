@@ -4,7 +4,7 @@ import pandas as pd
 import warnings
 import os
 """
-modified from origin WaybkJsonToCsvT.py
+modified from origin JsonConverterT.py
 
 Refactor: Qihang Zhang in 2023/02/03,National University of Singapore,
 NUS Business School, Department of Accounting

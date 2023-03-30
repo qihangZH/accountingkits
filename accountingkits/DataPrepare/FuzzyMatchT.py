@@ -6,7 +6,7 @@ import difflib
 import rapidfuzz
 import time
 import thefuzz.process
-from .. import _BasicFunc
+from .. import _BasicTools
 
 
 def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
@@ -63,6 +63,7 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
         return (value, identifier)
 
     """Dropped, for even slower then npapply and totally unstable, WRONG OUTPUTS MOSTTIMES"""
+
     # def __LAMBDA_taskof_list_rapidFM_list_tuple(identifier):
     #     """
     #     :param identifier:identifier
@@ -120,7 +121,7 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
 
         with pathos.multiprocessing.Pool(
                 # for safer exception in multiprocess
-                initializer=_BasicFunc.MultiprocessF.threads_interrupt_initiator
+                initializer=_BasicTools.MultiprocessT.threads_interrupt_initiator
         ) as pool:
             for result in tqdm.tqdm(
                     pool.imap_unordered(
@@ -159,7 +160,7 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
             {
                 'match_list': np.array(CONST_choice_list)[matchscores_position_arr],
                 'match_score': matchscores_total_mat[np.arange(len(CONST_querying_listarr)),
-                                                     matchscores_position_arr],
+                matchscores_position_arr],
             }
         )
         time_end = time.time()
@@ -218,7 +219,7 @@ def l1_auto_fuzzymatching_df(querying_listarr, choice_list, slicing_len, method,
         'TOTAL LENGTH of none SLICED data:{},SLICES be {} seps'.format(len(querying_arr), len(slice_arr))
     )
     if slice_arr[-1] != len(querying_arr):
-        slice_arr = np.append(slice_arr, len(querying_arr))   # his step is run in 100% but not remove 'if'
+        slice_arr = np.append(slice_arr, len(querying_arr))  # his step is run in 100% but not remove 'if'
 
     df_concat_list = []
     for k in range(len(slice_arr) - 1):

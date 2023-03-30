@@ -8,8 +8,8 @@ def sic4_fininst_select_bool_arr(listarrser):
     # Set again:
     # pandas.errors.IntCastingNaNError: Cannot convert non-finite values (NA or inf) to integer
     temp_ser = pd.Series(listarrser).copy()
-    bool_notNA_ser = ~(temp_ser.isna())
-    temp_ser[bool_notNA_ser] = (temp_ser[bool_notNA_ser]).apply('int32')
+    bool_not_na_ser = ~(temp_ser.isna())
+    temp_ser[bool_not_na_ser] = (temp_ser[bool_not_na_ser]).apply('int32')
 
     bool_arr = (np.greater_equal(temp_ser.values, 6000) & np.less_equal(temp_ser.values, 6999))
     return bool_arr
@@ -19,8 +19,8 @@ def naic6_fininst_select_bool_arr(listarrser):
     # Set again:
     # pandas.errors.IntCastingNaNError: Cannot convert non-finite values (NA or inf) to integer
     temp_ser = pd.Series(listarrser).copy()
-    bool_notNA_ser = ~(temp_ser.isna())
-    temp_ser[bool_notNA_ser] = (temp_ser[bool_notNA_ser]).apply('int32')
+    bool_not_na_ser = ~(temp_ser.isna())
+    temp_ser[bool_not_na_ser] = (temp_ser[bool_not_na_ser]).apply('int32')
 
     bool_arr = (np.greater_equal(temp_ser.values, 520000) & np.less_equal(temp_ser.values, 529999))
     return bool_arr
@@ -50,8 +50,8 @@ def int_rangeselect_bool_arr(listarrser, floor: int, ceil: int,
     # Set again:
     # pandas.errors.IntCastingNaNError: Cannot convert non-finite values (NA or inf) to integer
     temp_ser = pd.Series(listarrser).copy()
-    bool_notNA_ser = ~(temp_ser.isna())
-    temp_ser[bool_notNA_ser] = (temp_ser[bool_notNA_ser]).apply('int32')
+    bool_not_na_ser = ~(temp_ser.isna())
+    temp_ser[bool_not_na_ser] = (temp_ser[bool_not_na_ser]).apply('int32')
 
     bool_arr = (temp_floor_func(temp_ser.values, floor) & temp_ceil_func(temp_ser.values, ceil))
     return bool_arr
@@ -72,12 +72,12 @@ def l1_fininst_sic4naic6_selectbool_arr(SIC_listarrser, NAIC_listarrser, combine
     if (SIC_listarrser is None) and (NAIC_listarrser is None):
         raise ValueError('You have to input least SIC/NAIC')
     elif (not (SIC_listarrser is None)) and (not (NAIC_listarrser is None)):
-        SIC_bool_arr = sic4_fininst_select_bool_arr(SIC_listarrser)
-        NAIC_bool_arr = naic6_fininst_select_bool_arr(NAIC_listarrser)
+        sic_bool_arr = sic4_fininst_select_bool_arr(SIC_listarrser)
+        naic_bool_arr = naic6_fininst_select_bool_arr(NAIC_listarrser)
         if combine_method == 'and':
-            bool_arr = SIC_bool_arr & NAIC_bool_arr
+            bool_arr = sic_bool_arr & naic_bool_arr
         elif combine_method == 'or':
-            bool_arr = SIC_bool_arr | NAIC_bool_arr
+            bool_arr = sic_bool_arr | naic_bool_arr
         else:
             raise ValueError('combine_method Invalid,input "and","or" instead')
     elif not (SIC_listarrser is None):

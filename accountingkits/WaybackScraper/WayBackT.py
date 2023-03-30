@@ -1,7 +1,6 @@
 import re
 import json
 import time
-import warnings
 
 import nltk
 import string
@@ -29,7 +28,7 @@ nltk.download('punkt')
 """
 
 """
-modified from origin WaybkJsonToCsvT.py, config.py
+modified from origin files
 
 Author: Qihang Zhang in 2023/02/03,National University of Singapore,
 NUS Business School, Department of Accounting

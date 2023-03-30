@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 import warnings
-from .. import _BasicFunc
+from .. import _BasicTools
 
 
 def check_make_directory(check_make_dir, force: bool = False):
@@ -74,7 +74,7 @@ def dir_colnames_df(read_df_func, read_dir, suffix_regex: str, **kwargs):
         colname_dict[i] = read_df_func(read_dir + i).columns.values
         colname_len_dict[i] = len(colname_dict[i])
     for i in file_arr:
-        colname_dict[i] = _BasicFunc.ArrayLikeF.repunit_append_arr(
+        colname_dict[i] = _BasicTools.ArrayLikeT.repunit_append_arr(
             target_len=max(colname_len_dict.values()),
             listarrser=colname_dict[i],
             repunit=np.nan)
