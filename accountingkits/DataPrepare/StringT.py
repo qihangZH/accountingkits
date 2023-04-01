@@ -17,16 +17,33 @@ def suffix_remove_arr(listarrser, suffix_regex: str, **kwargs):
         raise ValueError('suffix_regex must be string and should not be ""')
 
     # core part
+
+    # old version >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+    # temp_remove_suffix_arr = pd.Series(listarrser).astype(str).str.replace(
+    #     '(' + suffix_regex + '){1}$', repl='', regex=True, **kwargs).values
+
+    # old version <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    # new version 2023/04/01 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    """
+    New version could use better regex
+    For it could safely use...
+    """
     temp_remove_suffix_arr = pd.Series(listarrser).astype(str).str.replace(
-        '(' + suffix_regex + '){1}$', repl='', regex=True, **kwargs).values
+        fr"({suffix_regex})$",
+        repl='',
+        regex=True,
+        **kwargs).values
+    # new version <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     return temp_remove_suffix_arr
 
 
 def extract_prefix_arr(listarrser, prefix_regex):
     """extract prefix by regex"""
-    temp_extract_arr = listarrser.astype(str).str.extract(
-        f'(^{prefix_regex}).*$', expand=False
+    temp_extract_arr = pd.Series(listarrser).astype(str).str.extract(
+        fr'(^{prefix_regex}).*$', expand=False
     ).values  # choose
 
     return temp_extract_arr
@@ -85,8 +102,15 @@ def l1_suffix_and_around_remove_arr(listarrser, suffix_regex: str, around_regex:
             **kwargs
         )
     else:
+        # temp_remove_suffix_arr = pd.Series(listarrser).astype(str).str.replace(
+        #     f'({around_regex})*' + '(' + suffix_regex + '){1}' + f'({around_regex})*$',
+        #     repl='',
+        #     regex=True,
+        #     **kwargs
+        # ).values
+
         temp_remove_suffix_arr = pd.Series(listarrser).astype(str).str.replace(
-            f'({around_regex})*' + '(' + suffix_regex + '){1}' + f'({around_regex})*$',
+            fr'({around_regex})*({suffix_regex})({around_regex})*$',
             repl='',
             regex=True,
             **kwargs
