@@ -49,7 +49,12 @@ def dir_colnames_df(read_df_func, read_dir, suffix_regex: str, **kwargs):
     # if we are sure that the suffix regex is string, then set it to suffix check.
     try:
         if (len(suffix_regex) != 0) and (isinstance(suffix_regex, str)):
-            pattern = '^.*(' + suffix_regex + '){1}$'
+
+            # pattern = '^.*(' + suffix_regex + '){1}$'
+
+            """new version pattern"""
+            pattern = fr'^.*({suffix_regex})$'
+
             temp_choose_arr = pd.Series(file_arr).str.contains(
                 pat=pattern, regex=True, **kwargs
             ).values
