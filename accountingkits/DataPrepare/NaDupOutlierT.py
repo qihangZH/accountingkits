@@ -17,23 +17,38 @@ def remove_duplicate_na_arr(listarrser):
     return temp_ser.values
 
 
-def latent_na_detector_bool_arr(listarrser, na_regex, case, is_detect_explicit_na: bool):
+def latent_na_detector_bool_arr(listarrser,
+                                na_regex,
+                                case,
+                                is_detect_explicit_na: bool,
+                                is_specify_zerolen_na: bool
+                                ):
     """
-    detect latent na, like spaces or comma
-    :param is_detect_explicit_na: bool, True for detect explicit na, False for not detect
+    detect latent na, like spaces or comma, only works for data which type is str
     :param listarrser: input
     :param na_regex: regex
     :param case: If True, case sensitive.
+    :param is_detect_explicit_na: bool, True for detect explicit na, False for not detect
+    :param is_specify_zerolen_na: bool, True for set zero length str as NA
     :return: bool array
     """
-    if not isinstance(is_detect_explicit_na,bool):
-        raise ValueError('is_detect_explicit_na only input for True or False')
+    if (not isinstance(is_detect_explicit_na, bool)) | (not isinstance(is_specify_zerolen_na, bool)):
+        raise ValueError('is_detect_explicit_na/is_specify_zerolen_na only input for True or False')
 
-    na_detect_arr = pd.Series(listarrser).str.match(
-        pat='^((,)|(\.)|( ))*('+na_regex+'){1}((,)|(\.)|( ))*$',
+    na_detect_arr = pd.Series(listarrser).astype(str).str.match(
+        # old version:
+        # pat='^((,)|(\.)|( ))*('+na_regex+'){1}((,)|(\.)|( ))*$',
+        pat=fr'^((,)|(\.)|(\s)|(;)|(\|))*({na_regex})?((,)|(\.)|(\s)|(;)|(\|))*$',
         case=case,
         na=is_detect_explicit_na  # substitute explicit n.a. with True/False
     ).values
+
+    # besides, we add another way to detect: string length==0 means na
+    if is_specify_zerolen_na:
+        zero_len_detect_arr = (pd.Series(listarrser).astype(str).apply(len) == 0).values
+
+        # both of them detect the need anwser.
+        na_detect_arr = na_detect_arr | zero_len_detect_arr
 
     return na_detect_arr
 
@@ -99,20 +114,26 @@ def auto_substituite_duplicates_bychoices_arr(duplicates_listarrser, choice_list
 # """level1 Complex DataPrepare Functions"""#################################################
 # -----------------------------------------------------------------------------------------
 
-def l1_latent_na_substitute_arr(listarrser, na_regex, case, substitute_value, is_detect_explicit_na):
+def l1_latent_na_substitute_arr(listarrser, na_regex, case,
+                                substitute_value: bool,
+                                is_detect_explicit_na: bool,
+                                ):
     """
     detect latent na, like spaces or comma, and substitute the whole element
-    :param is_detect_explicit_na: bool, True for substitute explicit na, False for not substitute explicit na
-    :param substitute_value: the substitute value to replace the detected na
     :param listarrser: input
     :param na_regex: regex
     :param case: If True, case sensitive.
+    :param is_detect_explicit_na: bool, True for substitute explicit na, False for not substitute explicit na
+    :param substitute_value: the substitute value to replace the detected na
+    :param is_detect_explicit_na: bool, True for set zero length str as NA
     :return: bool array
     """
     detect_arr = latent_na_detector_bool_arr(listarrser=listarrser,
                                              na_regex=na_regex,
                                              case=case,
-                                             is_detect_explicit_na=is_detect_explicit_na)
+                                             is_detect_explicit_na=is_detect_explicit_na,
+                                             is_specify_zerolen_na=is_detect_explicit_na
+                                             )
     temp_arr = copy.deepcopy(np.array(listarrser))
     # before change, first copy
     temp_arr[detect_arr] = substitute_value
