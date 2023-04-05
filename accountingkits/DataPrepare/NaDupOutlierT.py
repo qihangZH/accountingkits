@@ -35,6 +35,7 @@ def latent_na_detector_bool_arr(listarrser,
     if (not isinstance(is_detect_explicit_na, bool)) | (not isinstance(is_specify_zerolen_na, bool)):
         raise ValueError('is_detect_explicit_na/is_specify_zerolen_na only input for True or False')
 
+    # fullmatch contains match works same here, Actually we need fullmatch here, however do not change
     na_detect_arr = pd.Series(listarrser).astype(str).str.match(
         # old version:
         # pat='^((,)|(\.)|( ))*('+na_regex+'){1}((,)|(\.)|( ))*$',
