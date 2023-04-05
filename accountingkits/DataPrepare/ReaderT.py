@@ -3,6 +3,19 @@ import sas7bdat
 import chardet
 
 
+def find_file_encoding(path):
+    """
+    find the encoding of target file(data or other else)
+    more details could be seen: https://chardet.readthedocs.io/en/latest/usage.html;
+    https://stackoverflow.com/questions/12468179/unicodedecodeerror-utf8-codec-cant-decode-byte-0x9c
+    :param path: the path of file which encoding should be detected, the type will return as string.
+    """
+    with open(path, 'rb') as file:
+        result = chardet.detect(file.read())
+
+    return result['encoding']
+
+
 def harte_hanks_txt_reader_2019_2021_df(PATH, **kwargs):
     """encoding='ISO-8859-1
     :param kwargs: other arguments should be passed to pd.read_csv()
@@ -47,19 +60,6 @@ def sas7bdat_reader_df(path, **kwargs):
         temp_df = result.to_data_frame()
 
     return temp_df
-
-
-def find_file_encoding(path):
-    """
-    find the encoding of target file(data or other else)
-    more details could be seen: https://chardet.readthedocs.io/en/latest/usage.html;
-    https://stackoverflow.com/questions/12468179/unicodedecodeerror-utf8-codec-cant-decode-byte-0x9c
-    :param path: the path of file which encoding should be detected, the type will return as string.
-    """
-    with open(path, 'rb') as file:
-        result = chardet.detect(file.read())
-
-    return result['encoding']
 
 
 # -----------------------------------------------------------------------------------------
