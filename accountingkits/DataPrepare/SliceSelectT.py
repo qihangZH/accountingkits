@@ -4,7 +4,7 @@ import pandas as pd
 
 def sic4_fininst_select_bool_arr(listarrser):
     # 2022/12/15
-    # temp_arr = pd.Series(listarrser).astype('int32').values
+    # temp_arr = pd.Series(listarrser).astype('int32').to_numpy()
     # Set again:
     # pandas.errors.IntCastingNaNError: Cannot convert non-finite values (NA or inf) to integer
     temp_ser = pd.Series(listarrser).copy()
