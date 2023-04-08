@@ -14,7 +14,7 @@ def na_percent_float(listarrser) -> float:
 def remove_duplicate_na_arr(listarrser):
     """remove the duplicate obs and NA obs"""
     temp_ser = pd.Series(listarrser).drop_duplicates().dropna()
-    return temp_ser.values
+    return temp_ser.to_numpy()
 
 
 def latent_na_detector_bool_arr(listarrser,
@@ -42,11 +42,11 @@ def latent_na_detector_bool_arr(listarrser,
         pat=fr'^((,)|(\.)|(\s)|(;)|(\|))*({na_regex})?((,)|(\.)|(\s)|(;)|(\|))*$',
         case=case,
         na=is_detect_explicit_na  # substitute explicit n.a. with True/False
-    ).values
+    ).to_numpy()
 
     # besides, we add another way to detect: string length==0 means na
     if is_specify_zerolen_na:
-        zero_len_detect_arr = (pd.Series(listarrser).astype(str).apply(len) == 0).values
+        zero_len_detect_arr = (pd.Series(listarrser).astype(str).apply(len) == 0).to_numpy()
 
         # both of them detect the need anwser.
         na_detect_arr = na_detect_arr | zero_len_detect_arr
@@ -77,7 +77,7 @@ def auto_substituite_duplicates_bychoices_arr(duplicates_listarrser, choice_list
 
     if not (duplicate_keep is None):  # loop
         # Initialize
-        temp_duplicates_boolean_arr = pd.Series(duplicates_arr).duplicated(keep=duplicate_keep).values
+        temp_duplicates_boolean_arr = pd.Series(duplicates_arr).duplicated(keep=duplicate_keep).to_numpy()
         temp_nodup_remove_suffix_arr = copy.deepcopy(duplicates_arr)
         temp_nodup_remove_suffix_arr[temp_duplicates_boolean_arr] = choice_arr[temp_duplicates_boolean_arr]
         # other arguments
@@ -90,7 +90,7 @@ def auto_substituite_duplicates_bychoices_arr(duplicates_listarrser, choice_list
 
             last_loop_arr = temp_nodup_remove_suffix_arr
             temp_duplicates_boolean_arr = pd.Series(last_loop_arr
-                                                    ).duplicated(keep=_temp_keep).values
+                                                    ).duplicated(keep=_temp_keep).to_numpy()
             temp_nodup_remove_suffix_arr = copy.deepcopy(last_loop_arr)
             temp_nodup_remove_suffix_arr[temp_duplicates_boolean_arr] = choice_arr[temp_duplicates_boolean_arr]
             _temp_loop_count += 1

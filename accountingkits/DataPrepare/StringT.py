@@ -21,7 +21,7 @@ def suffix_remove_arr(listarrser, suffix_regex: str, **kwargs):
     # old version >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
     # temp_remove_suffix_arr = pd.Series(listarrser).astype(str).str.replace(
-    #     '(' + suffix_regex + '){1}$', repl='', regex=True, **kwargs).values
+    #     '(' + suffix_regex + '){1}$', repl='', regex=True, **kwargs).to_numpy()
 
     # old version <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -34,7 +34,7 @@ def suffix_remove_arr(listarrser, suffix_regex: str, **kwargs):
         fr"({suffix_regex})$",
         repl='',
         regex=True,
-        **kwargs).values
+        **kwargs).to_numpy()
     # new version <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     return temp_remove_suffix_arr
@@ -44,7 +44,7 @@ def extract_prefix_arr(listarrser, prefix_regex):
     """extract prefix by regex"""
     temp_extract_arr = pd.Series(listarrser).astype(str).str.extract(
         fr'(^{prefix_regex}).*$', expand=False
-    ).values  # choose
+    ).to_numpy()  # choose
 
     return temp_extract_arr
 
@@ -69,7 +69,7 @@ def restore_leading_zeros_str_arr(listarrser, target_len):
 
     dealed_string_arr = temp_string_ser.apply(
         lambda x: '0' * (target_len - len(x)) + x
-    ).values
+    ).to_numpy()
     return dealed_string_arr
 
 
@@ -95,7 +95,7 @@ def l1_suffix_and_around_remove_arr(listarrser, suffix_regex: str, around_regex:
     # core part
     if around_regex == '':
         # temp_remove_suffix_arr = pd.Series(listarrser).astype(str).str.replace(
-        #     '(' + suffix_regex + '){1}$', repl='', case=case, regex=True).values
+        #     '(' + suffix_regex + '){1}$', repl='', case=case, regex=True).to_numpy()
         temp_remove_suffix_arr = suffix_remove_arr(
             listarrser=listarrser,
             suffix_regex=suffix_regex,
@@ -107,13 +107,13 @@ def l1_suffix_and_around_remove_arr(listarrser, suffix_regex: str, around_regex:
         #     repl='',
         #     regex=True,
         #     **kwargs
-        # ).values
+        # ).to_numpy()
 
         temp_remove_suffix_arr = pd.Series(listarrser).astype(str).str.replace(
             fr'({around_regex})*({suffix_regex})({around_regex})*$',
             repl='',
             regex=True,
             **kwargs
-        ).values
+        ).to_numpy()
 
     return temp_remove_suffix_arr

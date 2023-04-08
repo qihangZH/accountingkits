@@ -139,11 +139,11 @@ class WayBack:
             # Search results cleaning: urlkey
             # Ensure uniqueness of urlkey, keep the shortest if not
             if df['urlkey'].nunique() > 1:
-                df = df[df['urlkey'] == sorted(df['urlkey'].values, key=len)[0]]
+                df = df[df['urlkey'] == sorted(df['urlkey'].to_numpy(), key=len)[0]]
                 print('Urlkey not unique, keep the shortest, {} matches left.'.format(df.shape[0]))
             # Complete url for archived websites (as stored on archive.org)
             df['url'] = ['https://web.archive.org/web' + '/' + t + '/' + o for t, o in
-                         zip(df['timestamp'].values, df['original'].values)]
+                         zip(df['timestamp'].to_numpy(), df['original'].to_numpy())]
             df.sort_values(['urlkey', 'datetime'], inplace=True)
             # Output a txt if specified
             return df
@@ -411,7 +411,7 @@ class WayBack:
 
         # Scrape all URLs and their subs
         url_res_all = {}
-        for url in df['url'].values:
+        for url in df['url'].to_numpy():
             tree_res = self.tree_scrape(url, max_url=max_url, max_sub=max_sub)
             url_res_all[url] = tree_res
 

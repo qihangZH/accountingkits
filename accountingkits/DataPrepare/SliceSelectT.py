@@ -11,7 +11,7 @@ def sic4_fininst_select_bool_arr(listarrser):
     bool_not_na_ser = ~(temp_ser.isna())
     temp_ser[bool_not_na_ser] = (temp_ser[bool_not_na_ser]).apply('int32')
 
-    bool_arr = (np.greater_equal(temp_ser.values, 6000) & np.less_equal(temp_ser.values, 6999))
+    bool_arr = (np.greater_equal(temp_ser.to_numpy(), 6000) & np.less_equal(temp_ser.to_numpy(), 6999))
     return bool_arr
 
 
@@ -22,7 +22,7 @@ def naic6_fininst_select_bool_arr(listarrser):
     bool_not_na_ser = ~(temp_ser.isna())
     temp_ser[bool_not_na_ser] = (temp_ser[bool_not_na_ser]).apply('int32')
 
-    bool_arr = (np.greater_equal(temp_ser.values, 520000) & np.less_equal(temp_ser.values, 529999))
+    bool_arr = (np.greater_equal(temp_ser.to_numpy(), 520000) & np.less_equal(temp_ser.to_numpy(), 529999))
     return bool_arr
 
 
@@ -53,7 +53,7 @@ def int_rangeselect_bool_arr(listarrser, floor: int, ceil: int,
     bool_not_na_ser = ~(temp_ser.isna())
     temp_ser[bool_not_na_ser] = (temp_ser[bool_not_na_ser]).apply('int32')
 
-    bool_arr = (temp_floor_func(temp_ser.values, floor) & temp_ceil_func(temp_ser.values, ceil))
+    bool_arr = (temp_floor_func(temp_ser.to_numpy(), floor) & temp_ceil_func(temp_ser.to_numpy(), ceil))
     return bool_arr
 
 

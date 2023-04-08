@@ -57,7 +57,7 @@ def dir_colnames_df(read_df_func, read_dir, suffix_regex: str, **kwargs):
 
             temp_choose_arr = pd.Series(file_arr).str.contains(
                 pat=pattern, regex=True, **kwargs
-            ).values
+            ).to_numpy()
             file_arr = file_arr[temp_choose_arr]
         else:
             print('\033[31mfail in suffix regex using, \nhowever pass file suffix detecting, use all files\033[0m')
@@ -76,7 +76,7 @@ def dir_colnames_df(read_df_func, read_dir, suffix_regex: str, **kwargs):
 
     for i in file_arr:
         # read each
-        colname_dict[i] = read_df_func(read_dir + i).columns.values
+        colname_dict[i] = read_df_func(read_dir + i).columns.to_numpy()
         colname_len_dict[i] = len(colname_dict[i])
     for i in file_arr:
         colname_dict[i] = _BasicTools.ArrayLikeT.repunit_append_arr(

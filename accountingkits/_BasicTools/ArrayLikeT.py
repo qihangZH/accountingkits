@@ -11,7 +11,7 @@ def test_allsame_bool(listarrser1, listarrser2):
     temp_df = temp_df.dropna(axis=0)
     temp_len = temp_df.shape[0]
 
-    return np.nansum(temp_df.apply(func=lambda x: x['ser1'] == x['ser2'], axis=1).values) == temp_len
+    return np.nansum(temp_df.apply(func=lambda x: x['ser1'] == x['ser2'], axis=1).to_numpy()) == temp_len
 
 
 def repunit_append_arr(target_len, listarrser, repunit):

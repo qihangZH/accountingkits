@@ -171,8 +171,8 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
     match_result_df = match_result_df.copy()
     match_result_df['match_score'] = match_result_df['match_score'].astype(float)
     # make 0~100%
-    if np.all((match_result_df['match_score'].values >= 0) &
-              (match_result_df['match_score'].values <= 1)):
+    if np.all((match_result_df['match_score'].to_numpy() >= 0) &
+              (match_result_df['match_score'].to_numpy() <= 1)):
         match_result_df['match_score'] = np.multiply(match_result_df['match_score'], 100)
         print(f'method {method},scorer {scorer} has *100 their scores')
 
