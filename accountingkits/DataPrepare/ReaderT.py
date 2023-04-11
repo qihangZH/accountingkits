@@ -20,7 +20,7 @@ def harte_hanks_txt_reader_2019_2021_df(PATH, **kwargs):
     """encoding='ISO-8859-1
     :param kwargs: other arguments should be passed to pd.read_csv()
     '"""
-    temp_df = pd.read_csv(filepath_or_buffer=PATH, encoding="ISO-8859-1", low_memory=False, **kwargs)
+    temp_df = pd.read_csv(filepath_or_buffer=PATH, encoding="ISO-8859-1", **kwargs)
     return temp_df
 
 
@@ -28,7 +28,7 @@ def harte_hanks_txt_reader_2017_2018_df(PATH, **kwargs):
     """encoding='UTF-16'
     :param kwargs: other arguments should be passed to pd.read_csv()
     """
-    temp_df = pd.read_csv(filepath_or_buffer=PATH, encoding="UTF-16", low_memory=False, **kwargs)
+    temp_df = pd.read_csv(filepath_or_buffer=PATH, encoding="UTF-16", **kwargs)
     return temp_df
 
 
@@ -36,7 +36,7 @@ def harte_hanks_txt_reader_2016_df(PATH, **kwargs):
     """encoding='ISO-8859-1'
     :param kwargs: other arguments should be passed to pd.read_csv()
     """
-    temp_df = pd.read_csv(filepath_or_buffer=PATH, encoding="ISO-8859-1", low_memory=False, **kwargs)
+    temp_df = pd.read_csv(filepath_or_buffer=PATH, encoding="ISO-8859-1", **kwargs)
     return temp_df
 
 
@@ -45,7 +45,7 @@ def harte_hanks_txt_reader_1996_2015_df(PATH, **kwargs):
     :param kwargs: other arguments should be passed to pd.read_csv()
     """
     temp_df = pd.read_csv(
-        filepath_or_buffer=PATH, encoding="ISO-8859-1", sep='\t', low_memory=False, **kwargs
+        filepath_or_buffer=PATH, encoding="ISO-8859-1", sep='\t', **kwargs
     )
     return temp_df
 
