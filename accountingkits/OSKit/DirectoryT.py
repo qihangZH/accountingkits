@@ -36,8 +36,8 @@ def dir_colnames_df(read_df_func, read_dir, suffix_regex: str, **kwargs):
     :param read_dir: the directory of the datas saved
     :param suffix_regex: suffix regex to search for files, however, should be type in "regex" to search.
         if you need to set Nothing, then simply use '', None, etc...
-    :param kwargs: other arguments for suffix regex detect file names which pandas.Series.str.contains() use, see:
-        https://pandas.pydata.org/docs/reference/api/pandas.Series.str.contains.html,
+    :param kwargs: other arguments for suffix regex detect file names which pandas.Series.str.fullmatch() use, see:
+        https://pandas.pydata.org/docs/reference/api/pandas.Series.str.fullmatch.html,
         however, regex=True,pat=patterns(special) can not be modified.
     :return: dataframe of output cols
     """
@@ -55,8 +55,8 @@ def dir_colnames_df(read_df_func, read_dir, suffix_regex: str, **kwargs):
             """new version pattern"""
             pattern = fr'^.*({suffix_regex})$'
 
-            temp_choose_arr = pd.Series(file_arr).str.contains(
-                pat=pattern, regex=True, **kwargs
+            temp_choose_arr = pd.Series(file_arr).str.fullmatch(
+                pat=pattern, **kwargs
             ).to_numpy()
             file_arr = file_arr[temp_choose_arr]
         else:
