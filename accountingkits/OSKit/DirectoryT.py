@@ -27,7 +27,7 @@ def check_make_directory(check_make_dir, force: bool = False):
         print('{} already exist.'.format(check_make_dir))
 
 
-def dir_colnames_df(read_df_func, read_dir, suffix_regex: str, **kwargs):
+def dir_colnames_df(read_df_func, read_dir, suffix_regex: str | None = None, **kwargs):
     """
     To show the colnames of Each DF in a dir, summary in to an DF
 
@@ -47,22 +47,25 @@ def dir_colnames_df(read_df_func, read_dir, suffix_regex: str, **kwargs):
     file_arr = np.array(os.listdir(read_dir))
 
     # if we are sure that the suffix regex is string, then set it to suffix check.
-    try:
-        if (len(suffix_regex) != 0) and (isinstance(suffix_regex, str)):
 
-            # pattern = '^.*(' + suffix_regex + '){1}$'
+    if pd.Series([suffix_regex]).isna().to_numpy()[0]:  # check if the regex input is None
 
-            """new version pattern"""
-            pattern = fr'^.*({suffix_regex})$'
+        print('\033[31mfail in suffix regex using, use all files in dir\033[0m')
 
-            temp_choose_arr = pd.Series(file_arr).str.fullmatch(
-                pat=pattern, **kwargs
-            ).to_numpy()
-            file_arr = file_arr[temp_choose_arr]
-        else:
-            print('\033[31mfail in suffix regex using, \nhowever pass file suffix detecting, use all files\033[0m')
-    except Exception as e:
-        print(f'\033[31m{e} occurs in suffix regex using, \nhowever pass file suffix detecting, use all files\033[0m')
+    elif (len(suffix_regex) != 0) and (isinstance(suffix_regex, str)):
+
+        # pattern = '^.*(' + suffix_regex + '){1}$'
+
+        """new version pattern"""
+        pattern = fr'^.*({suffix_regex})$'
+
+        temp_choose_arr = pd.Series(file_arr).str.fullmatch(
+            pat=pattern, **kwargs
+        ).to_numpy()
+        file_arr = file_arr[temp_choose_arr]
+
+    else:
+        print('\033[31mfail in suffix regex using, use all files in dir\033[0m')
 
     # print the detect result of the function...
     print('FILENAMES:\n', file_arr)
