@@ -34,9 +34,16 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
     if np.any(pd.Series(choice_list).duplicated()):
         raise ValueError('Error:there are duplicated in choice list, may cause confusing result')
     """
+    # 230415-> New version would detect the querying array's duplications, for better use may need to merge
+    #          instead of to concat...
+    if np.any(pd.Series(querying_listarr).duplicated()) or np.any(pd.Series(querying_listarr).isna()):
+        print(
+            "\nDuplicates or Null/Na in querying are detected and automatically removed\n"
+        )
+        querying_listarr = pd.Series(querying_listarr).dropna().drop_duplicates().to_list()
 
-    if np.any(pd.Series(querying_listarr).isna()):
-        raise ValueError("\033[31mNull/Na in querying list may cause confounding\033[0m")
+    # if np.any(pd.Series(querying_listarr).isna()):
+    #     raise ValueError("\033[31mNull/Na in querying list may cause confounding\033[0m")
 
     if np.any(pd.Series(choice_list).duplicated()) or np.any(pd.Series(choice_list).isna()):
         print(
@@ -47,7 +54,7 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
 
     # set constants
     """CONSTANTS CAN NOT BE CHANGED"""
-    CONST_querying_listarr = pd.Series(querying_listarr).astype(str).tolist()
+    CONST_querying_list = pd.Series(querying_listarr).astype(str).tolist()
     CONST_choice_list = pd.Series(choice_list).astype(str).tolist()
 
     def __LAMBDA_taskof_list_fuzzymatching_list_tuple(identifier):
@@ -56,32 +63,18 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
         :return: results tuple
         """
         value = thefuzz.process.extractOne(
-            query=CONST_querying_listarr[identifier],
+            query=CONST_querying_list[identifier],
             choices=CONST_choice_list,
             scorer=scorer
         )
         return (value, identifier)
-
-    """Dropped, for even slower then npapply and totally unstable, WRONG OUTPUTS MOSTTIMES"""
-
-    # def __LAMBDA_taskof_list_rapidFM_list_tuple(identifier):
-    #     """
-    #     :param identifier:identifier
-    #     :return: results tuple
-    #     """
-    #     value = rapidfuzz.process.extractOne(query=CONST_querying_listarr[identifier],
-    #                                         #Only Choose first two rows
-    #                                          choices=CONST_choice_list,
-    #                                          scorer=scorer
-    #                                          )[:2]
-    #     return (value,identifier)
 
     def __LAMBDA_taskof_list_difflibmatching_list_tuple(identifier):
         """
         :param identifier:
         :return:
         """
-        temp_input = CONST_querying_listarr[identifier]
+        temp_input = CONST_querying_list[identifier]
         match_result = difflib.get_close_matches(word=temp_input, possibilities=CONST_choice_list, n=1)
         if match_result == []:
             match_result = ''
@@ -94,7 +87,7 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
         return (value, identifier)
 
     if method == 'npapply':
-        npapply_query_arr = np.array(CONST_querying_listarr)[:, np.newaxis]
+        npapply_query_arr = np.array(CONST_querying_list)[:, np.newaxis]
 
         time_start = time.time()
         npapply_match_result_mat = np.apply_along_axis(
@@ -126,9 +119,9 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
             for result in tqdm.tqdm(
                     pool.imap_unordered(
                         _temp_loop_function,
-                        range(len(CONST_querying_listarr))
+                        range(len(CONST_querying_list))
                     ),
-                    total=len(CONST_querying_listarr)
+                    total=len(CONST_querying_list)
             ):
                 temp_matching_list.append(result[0][0])
                 temp_score_list.append(result[0][1])
@@ -150,7 +143,7 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
     elif method == 'rapidfuzz_cdist':
         """SuperFast Cpp Matrix method for matching result"""
         time_start = time.time()
-        matchscores_total_mat = rapidfuzz.process.cdist(queries=CONST_querying_listarr,
+        matchscores_total_mat = rapidfuzz.process.cdist(queries=CONST_querying_list,
                                                         scorer=scorer,
                                                         choices=CONST_choice_list,
                                                         workers=-1)
@@ -159,7 +152,7 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
         match_result_df = pd.DataFrame(
             {
                 'match_list': np.array(CONST_choice_list)[matchscores_position_arr],
-                'match_score': matchscores_total_mat[np.arange(len(CONST_querying_listarr)),
+                'match_score': matchscores_total_mat[np.arange(len(CONST_querying_list)),
                 matchscores_position_arr],
             }
         )
@@ -169,6 +162,10 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
         raise ValueError('Wrong method of iteration')
 
     match_result_df = match_result_df.copy()
+
+    # New idea: put the origin data in a result df column
+    match_result_df['origin_query'] = np.array(CONST_querying_list)
+
     match_result_df['match_score'] = match_result_df['match_score'].astype(float)
     # make 0~100%
     if np.all((match_result_df['match_score'].to_numpy() >= 0) &
@@ -200,9 +197,17 @@ def l1_auto_fuzzymatching_df(querying_listarr, choice_list, slicing_len, method,
 
     # 0.1.1.230205_alpha-> new version only check the n.a. of query list, automatically remove choices duplicates/na >>>
 
-    # add this only for not raise Value-error after running long-time script
-    if np.any(pd.Series(querying_listarr).isna()):
-        raise ValueError("\033[31mAuto Function->Null/Na in querying list may cause confounding\033[0m")
+    # # add this only for not raise Value-error after running long-time script
+    # if np.any(pd.Series(querying_listarr).isna()):
+    #     raise ValueError("\033[31mAuto Function->Null/Na in querying list may cause confounding\033[0m")
+
+    # 230415-> New version would detect the querying array's duplications, for better use may need to merge
+    #          instead of to concat...
+    if np.any(pd.Series(querying_listarr).duplicated()) or np.any(pd.Series(querying_listarr).isna()):
+        print(
+            "\nDuplicates or Null/Na in querying are detected and automatically removed\n"
+        )
+        querying_listarr = pd.Series(querying_listarr).dropna().drop_duplicates().to_list()
 
     # add this to avoid waste of performance and consistency
     if np.any(pd.Series(choice_list).duplicated()) or np.any(pd.Series(choice_list).isna()):
