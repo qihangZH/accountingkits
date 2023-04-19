@@ -49,7 +49,7 @@ class WayBack:
 
     def __init__(self, PATH, contact='youremail@domain.com', **kwargs):
         """
-        Modified from origin Romain Boulland, Thomas Bourveau, Matthias Breuer's work
+        Modified from origin Authors Romain Boulland, Thomas Bourveau, Matthias Breuer's work
         Author: Qihang Zhang in 2023/02/03,National University of Singapore,
         NUS Business School, Department of Accounting
         :param kwargs: useragent/alpha_token/word_len/stop_words/stemmer/STATUS_CODE/MIME_TYPE/

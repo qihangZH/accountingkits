@@ -1,8 +1,7 @@
 import json
-import csv
+
 import pandas as pd
-import warnings
-import os
+
 """
 modified from origin JsonConverterT.py
 
@@ -12,53 +11,60 @@ NUS Business School, Department of Accounting
 """
 
 
-def wayback_json_to_csv(input_json_path: str, output_csv_path: str):
-    if not pd.Series(input_json_path).str.endswith("json")[0]:
-        raise ValueError('Input must endswith .json')
-    # read json file
-    data_file = open(input_json_path)
-    data = json.load(data_file)
-    data_file.close()
+def wayback_scraper_response_json_to_df(PATH):
+    """
+    :param PATH: path of WaybackT.WayBack.wayback_scraper returned json
+    should be res[...].json like files, However you may change the name.
+    """
 
-    # start csv
-    csv_file = open(output_csv_path, 'w', newline='')
-    # print(output_csv_path)
-    writer = csv.writer(csv_file)
+    if not PATH.endswith('.json'):
+        raise ValueError('Input file name must be json')
 
-    write_counter = 0
-    for element in data:
-        try:
-            writer.writerow(element)
-        except:
-            warnings.warn(f"csv.writer.writerow error in {write_counter}'s element(minimum zero)")
-        finally:
-            write_counter += 1
+    # read result json
+    with open(PATH, "r") as file:
+        data_dict = json.load(file)
 
-    csv_file.close()
+    # set the containers
+    q_url_list = []
+    url_list = []
+    c_url_list = []
+    error_list = []
+    text_list = []
 
+    # one chronic should have one subset
+    for c in data_dict.keys():
+        # chronic data list
+        chronic_data_list = data_dict[c]
+        # there should be obs dicts in chronic data list
+        for obsdict in chronic_data_list:
+            q_url_list.append(c)
+            url_list.append(obsdict['URL'])
+            c_url_list.append(obsdict['cURL'])
+            error_list.append(obsdict['error'])
+            text_list.append(obsdict['text'])
 
-def dir_wayback_json_to_csv(input_dir, output_dir):
-    """see more in https://github.com/r-boulland/Corporate-Website-Disclosure.git"""
-    for filename in os.listdir(input_dir):
-        if not pd.Series(filename).str.endswith(".json")[0]:
-            continue
-        out = os.path.join(output_dir, os.path.splitext(filename)[0])
-        seq = (out, ".csv")
-        out = "".join(seq)
-        ticker = os.path.join(input_dir, filename)
-        print('reading:', ticker)
-        data_file = open(ticker)
-        try:
-            data = json.load(data_file)
-        except:
-            continue
-        data_file.close()
-        csv_file = open(out, 'w', newline='')
-        print('writing:', out, '\n')
-        writer = csv.writer(csv_file)
-        for element in data:
-            try:
-                writer.writerow(element)
-            except:
-                continue
-        csv_file.close()
+    result_df = pd.DataFrame(
+        {
+            'q_url': q_url_list,
+            'url': url_list,
+            'c_url': c_url_list,
+            'error': error_list,
+            'text': text_list
+        }
+    ).copy()
+
+    result_df['q_date'] = pd.to_datetime(
+        result_df['q_url'].str.extract(
+            r'^https://web\.archive\.org/web/(\d+)/.*$', expand=False
+        ),
+        format="%Y%m%d%H%M%S"
+    )
+
+    result_df['url_date'] = pd.to_datetime(
+        result_df['url'].str.extract(
+            r'^https://web\.archive\.org/web/(\d+)/.*$', expand=False
+        ),
+        format="%Y%m%d%H%M%S"
+    )
+
+    return result_df
