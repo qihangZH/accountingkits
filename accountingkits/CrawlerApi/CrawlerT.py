@@ -2,12 +2,14 @@ import requests
 import bs4
 
 
-def request_url_text(url) -> str:
+def request_url_text(url, **kwargs) -> str:
     """
-    extract the texture in url/website, return string.
+    extract the texture in an url/website, return string. If you need sleep, set it outside.
     :param url: the url to be request
+    :param kwargs: the kwargs of request.get(), which help you to modify and face some situations.
+    :return: string of url text
     """
-    response = requests.get(url)
+    response = requests.get(url, **kwargs)
     if response.status_code == 200:
         soup = bs4.BeautifulSoup(response.content, 'html.parser')
 
