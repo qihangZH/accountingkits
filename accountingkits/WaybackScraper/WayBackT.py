@@ -436,3 +436,89 @@ class WayBack:
         # Store the time-series of formed BoWs
         with open(path + 'bow[' + re.sub(r'[^\w\s\-]', '_', host) + '].json', 'w') as f:
             json.dump(url_bow_all, f)
+
+    def wayback_scraper_text(self, host, freq, date_range=None, **kwargs):
+        """
+        Author: Qihang Zhang in 2023/04/22,National University of Singapore,
+        NUS Business School, Department of Accounting,
+
+        A modified function to process with the text scraper from wayback machine scraper
+
+        Main function
+        The function WaybackScraper() serves as the main function of the program.
+        It generates bag of words for a time-series of company websites.
+        :param host: website name
+        :param freq: frequency of time, see more in timedelta of pandas
+            https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
+        :param date_range: (str,str),default None Date (yyyy/mm/dd) range of URL search.
+        :param kwargs: max_url/max_sub
+        """
+        max_url = kwargs['max_url'] if 'max_url' in kwargs else self.MAX_URL
+
+        max_sub = kwargs['max_sub'] if 'max_sub' in kwargs else self.MAX_SUB
+
+        # Search all archives for the entered URL
+        df = self.wayback_query(host)
+
+        # Break if no result found
+        if df is None:
+            return
+
+        # Aggregate query results at desired frequency
+        df = self.query_filter(df, freq, date_range)
+
+        # Scrape all URLs and their subs
+        url_res_all_dict = {}
+        for url in df['url'].to_numpy():
+            tree_res = self.tree_scrape(url, max_url=max_url, max_sub=max_sub)
+            url_res_all_dict[url] = tree_res
+
+        # set the containers
+        q_url_list = []
+        url_list = []
+        # c_url_list = []
+        error_list = []
+        text_list = []
+        sub_url_list = []
+
+        # one chronic should have one subset
+        for c in url_res_all_dict.keys():
+            # chronic data list
+            chronic_data_list = url_res_all_dict[c]
+            # there should be obs dicts in chronic data list
+            for obsdict in chronic_data_list:
+                q_url_list.append(c)
+                url_list.append(obsdict['URL'])
+                # c_url_list.append(obsdict['cURL'])
+                error_list.append(obsdict['error'])
+                text_list.append(obsdict['text'])
+                sub_url_list.append(obsdict['subURLs'])
+
+        result_df = pd.DataFrame(
+            {
+                'q_url': q_url_list,
+                'url': url_list,
+                # 'c_url': c_url_list,
+                'error': error_list,
+                'text': text_list,
+                'suburls_list': sub_url_list
+            }
+        ).copy()
+
+        result_df['q_date'] = pd.to_datetime(
+            result_df['q_url'].str.extract(
+                r'^https://web\.archive\.org/web/(\d+)/.*$', expand=False
+            ),
+            format="%Y%m%d%H%M%S"
+        )
+
+        result_df['url_date'] = pd.to_datetime(
+            result_df['url'].str.extract(
+                r'^https://web\.archive\.org/web/(\d+)/.*$', expand=False
+            ),
+            format="%Y%m%d%H%M%S"
+        )
+
+        result_df = result_df.drop(columns=['q_url'])
+
+        return result_df
