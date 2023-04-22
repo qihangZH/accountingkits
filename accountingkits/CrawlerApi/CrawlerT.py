@@ -2,7 +2,7 @@ import requests
 import bs4
 
 
-def request_url_text(url, **kwargs) -> str:
+def request_html_url_text(url, **kwargs) -> str:
     """
     extract the texture in an url/website, return string. If you need sleep, set it outside.
     :param url: the url to be request

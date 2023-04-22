@@ -437,7 +437,7 @@ class WayBack:
         with open(path + 'bow[' + re.sub(r'[^\w\s\-]', '_', host) + '].json', 'w') as f:
             json.dump(url_bow_all, f)
 
-    def wayback_scraper_text(self, host, freq, date_range=None, **kwargs):
+    def wayback_scraper_text_df(self, host, freq, date_range=None, **kwargs):
         """
         Author: Qihang Zhang in 2023/04/22,National University of Singapore,
         NUS Business School, Department of Accounting,
@@ -452,6 +452,7 @@ class WayBack:
             https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
         :param date_range: (str,str),default None Date (yyyy/mm/dd) range of URL search.
         :param kwargs: max_url/max_sub
+        :return: DataFrame, contains url, error, text, suburl_list which contains found suburls, qurl
         """
         max_url = kwargs['max_url'] if 'max_url' in kwargs else self.MAX_URL
 
@@ -474,39 +475,37 @@ class WayBack:
             url_res_all_dict[url] = tree_res
 
         # set the containers
-        q_url_list = []
+        chronicle_url_list = []
         url_list = []
-        # c_url_list = []
         error_list = []
         text_list = []
         sub_url_list = []
 
         # one chronic should have one subset
         for c in url_res_all_dict.keys():
-            # chronic data list
+            # chronic data list, this url is used for save the archive data of url
             chronic_data_list = url_res_all_dict[c]
             # there should be obs dicts in chronic data list
             for obsdict in chronic_data_list:
-                q_url_list.append(c)
+                chronicle_url_list.append(c)
                 url_list.append(obsdict['URL'])
-                # c_url_list.append(obsdict['cURL'])
                 error_list.append(obsdict['error'])
                 text_list.append(obsdict['text'])
                 sub_url_list.append(obsdict['subURLs'])
 
         result_df = pd.DataFrame(
             {
-                'q_url': q_url_list,
+                'chronicle_url': chronicle_url_list,
                 'url': url_list,
-                # 'c_url': c_url_list,
                 'error': error_list,
                 'text': text_list,
-                'suburls_list': sub_url_list
+                'suburls_list': sub_url_list  # this is actually a matrix
             }
         ).copy()
 
-        result_df['q_date'] = pd.to_datetime(
-            result_df['q_url'].str.extract(
+        # From origin URL of chronical archive, we can get the
+        result_df['archive_chronicle'] = pd.to_datetime(
+            result_df['chronicle_url'].str.extract(
                 r'^https://web\.archive\.org/web/(\d+)/.*$', expand=False
             ),
             format="%Y%m%d%H%M%S"
@@ -519,6 +518,6 @@ class WayBack:
             format="%Y%m%d%H%M%S"
         )
 
-        result_df = result_df.drop(columns=['q_url'])
+        result_df = result_df.drop(columns=['chronicle_url'])
 
         return result_df
