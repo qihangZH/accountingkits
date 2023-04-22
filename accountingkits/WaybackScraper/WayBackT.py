@@ -15,6 +15,7 @@ from nltk.stem.porter import PorterStemmer
 from io import BytesIO
 
 import fake_useragent
+
 """
 Author: Romain Boulland, Thomas Bourveau, Matthias Breuer
 Date: Jun 24, 2021
@@ -33,6 +34,8 @@ modified from origin files
 Author: Qihang Zhang in 2023/02/03,National University of Singapore,
 NUS Business School, Department of Accounting
 """
+
+
 # %% Macros
 # STATUS_CODE = config.status_code
 # MIME_TYPE = config.mime_type
@@ -75,7 +78,7 @@ class WayBack:
         # Some Settings
         alpha_token = kwargs['alpha_token'] if 'alpha_token' in kwargs else True
 
-        word_len = kwargs['word_len'] if 'word_len' in kwargs else(1, 20)
+        word_len = kwargs['word_len'] if 'word_len' in kwargs else (1, 20)
 
         stop_words = kwargs['stop_words'] if 'stop_words' in kwargs else stopwords.words('english')
 
@@ -404,7 +407,7 @@ class WayBack:
             return
 
         # Store the API query results
-        df.to_csv(path+'cdx['+re.sub(r'[^\w\s\-]', '_', host)+'].csv', index=False)
+        df.to_csv(path + 'cdx[' + re.sub(r'[^\w\s\-]', '_', host) + '].csv', index=False)
 
         # Aggregate query results at desired frequency
         df = self.query_filter(df, freq, date_range)
@@ -416,7 +419,7 @@ class WayBack:
             url_res_all[url] = tree_res
 
         # Store the time-series of scraped results
-        with open(path+'res['+re.sub(r'[^\w\s\-]', '_', host)+'].json', 'w') as f:
+        with open(path + 'res[' + re.sub(r'[^\w\s\-]', '_', host) + '].json', 'w') as f:
             json.dump(url_res_all, f)
 
         # Process scraped html texts
@@ -431,5 +434,5 @@ class WayBack:
         }
 
         # Store the time-series of formed BoWs
-        with open(path+'bow[' + re.sub(r'[^\w\s\-]', '_', host)+'].json', 'w') as f:
+        with open(path + 'bow[' + re.sub(r'[^\w\s\-]', '_', host) + '].json', 'w') as f:
             json.dump(url_bow_all, f)
