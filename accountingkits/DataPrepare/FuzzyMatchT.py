@@ -94,7 +94,7 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
             func1d=lambda x: thefuzz.process.extractOne(query=x[0], choices=CONST_choice_list, scorer=scorer),
             arr=npapply_query_arr, axis=1)
         time_end = time.time()
-        print('list_fuzzymatching_list method {} time cost'.format(method), time_end - time_start, 's')
+        print('list_fuzzymatching_df method {} time cost'.format(method), time_end - time_start, 's')
 
         #  In after place match mean result from choice list
         #  Only Choose first two rows
@@ -157,7 +157,7 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
             }
         )
         time_end = time.time()
-        print('list_fuzzymatching_list method {} time cost'.format(method), time_end - time_start, 's')
+        print('list_fuzzymatching_df method {} time cost'.format(method), time_end - time_start, 's')
     else:
         raise ValueError('Wrong method of iteration')
 
