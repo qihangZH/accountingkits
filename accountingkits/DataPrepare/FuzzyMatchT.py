@@ -114,7 +114,7 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
 
         with pathos.multiprocessing.Pool(
                 # for safer exception in multiprocess
-                initializer=_BasicTools.MultiprocessT.threads_interrupt_initiator
+                initializer=_BasicTools.MultiprocessT.processes_interrupt_initiator
         ) as pool:
             for result in tqdm.tqdm(
                     pool.imap_unordered(

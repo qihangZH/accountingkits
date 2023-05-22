@@ -57,16 +57,16 @@ Nice question, If really so, you may have to replace the code for single modules
 For example in FuzzyMatchT.py:
 
 ```python
-from .. import _BasicFunc
+from .. import _BasicTools
 ```
 
 To search in FuzzyMatch.py,you can find that, "_BasicFunc" result contains:
 
 ```python
 with pathos.multiprocessing.Pool(
-                # for safer exception in multiprocess
-                initializer=_BasicFunc.MultiprocessF.threads_interrupt_initiator
-        ) as pool:
+        # for safer exception in multiprocess
+        initializer=_BasicFunc.MultiprocessF.processes_interrupt_initiator
+) as pool:
     ...
 ```
 
