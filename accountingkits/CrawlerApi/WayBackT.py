@@ -5,13 +5,14 @@ import tldextract
 import numpy as np
 import requests
 import pandas as pd
-from bs4 import BeautifulSoup
-from urllib.parse import urljoin
 from io import BytesIO
 import multiprocessing.pool
 import functools
 import operator
-from accountingkits import _BasicTools
+import ratelimit
+import backoff
+import typing
+from .. import _BasicTools
 
 """
 Author: Romain Boulland, Thomas Bourveau, Matthias Breuer
@@ -46,17 +47,22 @@ def wayback_url_parse_tuple(url):
         return None, None
 
 
-def wayback_url_query_df(host, match_type='exact', collapse_time=10, **kwargs):
+def wayback_url_query_df(host, match_type='exact', collapse_time=10,
+                         **kwargs):
     """
     The function wayback_query() interacts with the Wayback Machine API
      to retrieve all matched results for a given input URL.
     The official documentation of the API is here:
     https://github.com/internetarchive/wayback/tree/master/wayback-cdx-server
+    :param kwargs: the params of requests.get()
     """
     # Wayback API query
     q = 'http://web.archive.org/cdx/search/cdx?url={}&matchType={}&collapse=timestamp:{}&output=json' \
         .format(host, match_type, collapse_time)
     r = requests.get(q, **kwargs)
+    if r.status_code != 200:
+        raise Exception('API response: {}'.format(r.status_code))
+
     # Convert json format result into a dataframe
     try:
         df = pd.read_json(r.content)
@@ -96,29 +102,52 @@ def wayback_url_query_df(host, match_type='exact', collapse_time=10, **kwargs):
 
 
 @_BasicTools.DecoratorT.timer_wrapper
-def wayback_url_suburls_search_df(archive_url, processes, recursive_times: int = 1, time_range=(None, None), **kwargs):
-    def _lambda_search_suburls(url):
-        try:
-            response = requests.get(url, **kwargs)
-            html_content = response.text
+def wayback_url_suburls_search_list(
+        archive_url, threads, recursive_times: int = 1, time_range=(None, None),
+        ratelimit_call: typing.Union[int, None] = None, ratelimit_period: typing.Union[int, None] = None,
+        backoff_maxtries: typing.Union[int, None] = None,
+        **kwargs
+):
+    """
+        :param archive_url: wayback machine archieve urls
+        :param threads: thread numbers(only one cores will be used)
+        :param recursive_times: search recursive times for the sub urls
+        :param time_range: the time range, should be tuple, will be turn to pd.to_datetime()
+        :param ratelimit_{call/period}: parameters of ratelimits
+        :param backoff_maxtries: maxtry times meets ratelimit.RateLimitException, or cast Exceptions directly
+        :param kwargs: the params of requests.get()
+    """
+    if not isinstance(archive_url, str):
+        raise ValueError('archive_url should be string, one input at once.')
 
-            soup = BeautifulSoup(html_content, "html.parser")
+    if (not (ratelimit_call is None)) and (not (ratelimit_period is None)) and (not (backoff_maxtries is None)):
+        """the function return [] but not exception for continue the loop"""
+        @backoff.on_exception(backoff.expo, ratelimit.RateLimitException, max_tries=backoff_maxtries)
+        @ratelimit.limits(calls=ratelimit_call, period=ratelimit_period)
+        def _lambda_search_suburls_list(url):
+            try:
+                res_list = _BasicTools.WebT.search_html_suburls_list(url, **kwargs)
 
-            anchor_tags = soup.find_all("a")
+            except Exception as e:
+                print(e)
+                res_list = []
+            return res_list
+    else:
+        def _lambda_search_suburls_list(url):
+            try:
+                res_list = _BasicTools.WebT.search_html_suburls_list(url, **kwargs)
 
-            sub_urls = []
-            for anchor_tag in anchor_tags:
-                href = anchor_tag.get("href")
-                absolute_url = urljoin(url, href)
-                sub_urls.append(absolute_url)
-        except Exception as e:
-            print(e)
-            sub_urls = []
+            except Exception as e:
+                print(e)
+                res_list = []
+            return res_list
 
-        return sub_urls
-
-    url_ext = tldextract.extract(wayback_url_parse_tuple(archive_url)[1])
-    url_domain = url_ext.domain + '.' + url_ext.suffix
+    try:
+        url_ext = tldextract.extract(wayback_url_parse_tuple(archive_url)[1])
+        url_domain = url_ext.domain + '.' + url_ext.suffix
+    except Exception as e:
+        print(f'ERROR in seperate the url:{archive_url}, it seems useless: precisely:{e}')
+        return ['']
 
     url_list = [archive_url]
     last_url_list = []
@@ -131,20 +160,20 @@ def wayback_url_suburls_search_df(archive_url, processes, recursive_times: int =
         # after find the search url list, change the last url list to new one.
         last_url_list = copy.deepcopy(url_list)
 
-        if processes > 1:
+        if threads > 1:
 
             with multiprocessing.pool.ThreadPool(
-                    processes=processes
+                    processes=threads
             ) as pool:
-                results = pool.map_async(_lambda_search_suburls, search_url_list,
+                results = pool.map_async(_lambda_search_suburls_list, search_url_list,
                                          )
-                current_results = functools.reduce(operator.add, results.get())
+                current_results_list = functools.reduce(operator.add, results.get())
 
-            url_list = url_list + current_results  # for safer use
+            url_list = url_list + current_results_list  # for safer use
 
         else:
             for surl in search_url_list:
-                url_list = url_list + _lambda_search_suburls(surl)  # for safer use
+                url_list = url_list + _lambda_search_suburls_list(surl)  # for safer use
 
         # make result to a set
         url_list = pd.Series(url_list).dropna().drop_duplicates().to_list()

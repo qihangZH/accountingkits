@@ -19,6 +19,7 @@ This make me could not put these following dependencies in setup.cfg,
 If there found any method to help me to manage the environment while could help you with dependencies,
 feel free to tell me, it is the first time for me to write the python package, thank you.
 
+Here are Conda install packages:
 ```
 certifi
 numpy
@@ -33,6 +34,15 @@ nltk
 beautifulsoup4
 fake-useragent
 Cython
+```
+
+You may install these special dependencies from pip only:
+```
+ratelimit
+```
+Check that some of other pack are recommend but not need:
+```
+selenium (pip)
 ```
 
 then clone->install
