@@ -234,5 +234,5 @@ def l1_auto_fuzzymatching_df(querying_listarr, choice_list, slicing_len, method,
 
         df_concat_list.append(matchresult_k_df)
 
-    total_df = pd.concat(df_concat_list, axis=0)
+    total_df = pd.concat(df_concat_list, axis=0).reset_index(drop=True)
     return total_df
