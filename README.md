@@ -34,6 +34,7 @@ nltk
 beautifulsoup4
 fake-useragent
 Cython
+wordninja
 ```
 
 You may install these special dependencies from pip only:
