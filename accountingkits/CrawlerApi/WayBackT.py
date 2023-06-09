@@ -101,7 +101,7 @@ def wayback_url_query_df(host, match_type='exact', collapse_time=10,
         return df
 
 
-@_BasicTools.DecoratorT.timer_wrapper
+
 def wayback_url_suburls_search_list(
         archive_url, threads, recursive_times: int = 1, time_range=(None, None),
         ratelimit_call: typing.Union[int, None] = None, ratelimit_period: typing.Union[int, None] = None,

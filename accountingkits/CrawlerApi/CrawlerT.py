@@ -15,9 +15,19 @@ def test_float_proxy_working_bool(proxies, timeout=180):
                          ).group()
         res2 = re.search(r'[.\d]+', requests.get('http://httpbin.org/ip',
                                                  proxies=proxies, timeout=timeout).text).group()
-        if res1 != res2:
+
+        res3 = re.search(r'[.\d]+', requests.get('https://httpbin.org/ip',
+                                                 proxies=proxies, timeout=timeout).text
+
+                         ).group()
+        res4 = re.search(r'[.\d]+', requests.get('https://httpbin.org/ip',
+                                                 proxies=proxies, timeout=timeout).text).group()
+
+        if (res1 != res2) and (res3 != res4):
             return True
         else:
+            print(f'DIFFERENCE CAUSE ERROR(HTTP): http1:{res1}, http2:{res2}')
+            print(f'DIFFERENCE CAUSE ERROR(HTTPS): https1:{res3}, https2:{res4}')
             return False
     except Exception as e:
         print(e)
