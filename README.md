@@ -40,6 +40,7 @@ wordninja
 You may install these special dependencies from pip only:
 ```
 ratelimit
+backoff
 ```
 Check that some of other pack are recommend but not need:
 ```
