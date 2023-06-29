@@ -1,4 +1,6 @@
 import os
+import pathlib
+import typing
 import numpy as np
 import pandas as pd
 import warnings
@@ -25,6 +27,46 @@ def check_make_directory(check_make_dir, force: bool = False):
         print('Make dir:{}'.format(check_make_dir))
     else:
         print('{} already exist.'.format(check_make_dir))
+
+
+def traverse_dir_items_list(directory, return_type: typing.Literal['all', 'file', 'folder'] = "all", walk=False):
+    """
+    Traverse through the folder and return the list of item names based on the specified return type.
+
+    Args:
+        directory: The directory path to search for items.
+        return_type: Return type of items. Options are "all" (default), "file", or "folder".
+        walk: Whether to perform a recursive search. Default is False.
+
+    Returns:
+        A list of item names.
+
+    """
+    if not (return_type in ['all', 'file', 'folder']):
+        raise ValueError("Wrong return type, must be ['all', 'file', 'folder']")
+
+    return_item_list = []
+
+    if walk:
+        warnings.warn("\033[31myou already set 'walk=True' for recursive, be aware\033[0m", UserWarning)
+        for root, dirs, files in os.walk(directory):
+            if (return_type == "all") or (return_type == "folder"):
+                for dir_name in dirs:
+                    dir_path = os.path.join(root, dir_name)
+                    return_item_list.append(str(pathlib.Path(dir_path)))
+            if (return_type == "all") or (return_type == "file"):
+                for file_name in files:
+                    file_path = os.path.join(root, file_name)
+                    return_item_list.append(str(pathlib.Path(file_path)))
+    else:
+        for item in os.listdir(directory):
+            item_path = os.path.join(directory, item)
+            if (os.path.isdir(item_path)) and (return_type == "all" or return_type == "folder"):
+                return_item_list.append(str(pathlib.Path(item_path)))
+            elif (os.path.isfile(item_path)) and (return_type == "all" or return_type == "file"):
+                return_item_list.append(str(pathlib.Path(item_path)))
+
+    return return_item_list
 
 
 def dir_colnames_df(read_df_func, read_dir, suffix_regex: str | None = None, **kwargs):
