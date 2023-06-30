@@ -48,7 +48,7 @@ def traverse_dir_items_list(directory, return_type: typing.Literal['all', 'file'
     return_item_list = []
 
     if walk:
-        warnings.warn("\033[31myou already set 'walk=True' for recursive, be aware\033[0m", UserWarning)
+        print("\033[31myou already set 'walk=True' for recursive, be aware\033[0m")
         for root, dirs, files in os.walk(directory):
             if (return_type == "all") or (return_type == "folder"):
                 for dir_name in dirs:
@@ -59,6 +59,7 @@ def traverse_dir_items_list(directory, return_type: typing.Literal['all', 'file'
                     file_path = os.path.join(root, file_name)
                     return_item_list.append(str(pathlib.Path(file_path)))
     else:
+        print("\033[31myou already set 'walk=False' for not recursive, be aware\033[0m")
         for item in os.listdir(directory):
             item_path = os.path.join(directory, item)
             if (os.path.isdir(item_path)) and (return_type == "all" or return_type == "folder"):
