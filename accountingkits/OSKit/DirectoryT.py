@@ -114,7 +114,10 @@ def dir_colnames_df(read_df_func, read_dir, suffix_regex: str | None = None, **k
     print('FILENAMES:\n', file_arr)
 
     # get read_sample to ensure the readfunc return dataframe
-    read_sample = read_df_func(read_dir + file_arr[0])
+    # read_sample = read_df_func(read_dir + file_arr[0])
+    """new version, use pathlib instead"""
+    read_sample = read_df_func(str(pathlib.Path(read_dir, file_arr[0])))
+
     if not isinstance(read_sample, pd.DataFrame):
         raise ValueError('read_function must return pandas.Dataframe, '
                          f'However, your read_function return {type(read_sample)}'
