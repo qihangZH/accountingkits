@@ -17,7 +17,7 @@ def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
     :param method: npapply/multiprocessing/rapidfuzz_cdist/difflib,difflib use special method to match, Not levenshtein
     :param scorer: the scorer of fuzzymatch, it could be changed to different result,
             classic normalized_levenshtein be rapidfuzz.fuzz.ratio,however be useless in difflib method
-    :return: result dataframe
+    :return: result dataframe, columns: origin_query, match_list, match_score
     """
 
     # 0.1.1.230205_alpha-> new version only check the n.a. of query list, automatically remove choices duplicates/na >>>
