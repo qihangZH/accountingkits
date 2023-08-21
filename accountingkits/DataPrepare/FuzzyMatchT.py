@@ -185,9 +185,9 @@ def l1_auto_fuzzymatching_df(querying_listarr, choice_list, slicing_len, method,
     """
     slicing for memory saving....
     lisklikearray->fuzzymatch with a LIST.scorer I prefer rapidfuzz.fuzz.ratio(Normalize levenshtein)
-    :param slicing_len: slicing len for each matching(rows)
     :param querying_listarr:~
     :param choice_list:~
+    :param slicing_len: slicing len for each matching(rows)
     :param method: npapply/multiprocessing/rapidfuzz_cdist/difflib
                 ,difflib use special method to match, Not levenshtein
     :param scorer: the scorer of fuzzymatch, it could be changed to different result,
