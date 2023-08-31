@@ -1,179 +1,187 @@
 import tqdm
 import numpy as np
 import pandas as pd
-import pathos
-import difflib
 import rapidfuzz
-import time
-import thefuzz.process
-from .. import _BasicTools
 
 
-def list_fuzzymatching_df(querying_listarr, choice_list, method, scorer):
+def _preprocess_input_query_choice_tuplelist(querying_listarr, choice_list):
     """
-    lisklikearray->fuzzymatch with a LIST. scorer I prefer rapidfuzz.fuzz.ratio(Normalize levenshtein)
-    return the match result with biggest chance.
+    reserve function...
+    To make sure the query/choices list are input correctly
 
-    :param querying_listarr:~
-    :param choice_list:~
-    :param method: npapply/multiprocessing/rapidfuzz_cdist/difflib,difflib use special method to match, Not levenshtein
-    :param scorer: the scorer of fuzzymatch, it could be changed to different result,
-            classic normalized_levenshtein be rapidfuzz.fuzz.ratio,however be useless in difflib method
-    :return: result dataframe, columns: origin_query, match_list, match_score
+    There are two steps: 1.make sure no duplicates/NA 2.astype to string
+
     """
 
-    # 0.1.1.230205_alpha-> new version only check the n.a. of query list, automatically remove choices duplicates/na >>>
-    """
-    deprecated old version, 0.1.1.230203_alpha
-    
-    if (sum(pd.Series(querying_listarr).isna()) != 0) | (sum(pd.Series(choice_list).isna()) != 0):
-        raise ValueError(
-            "Error:querying_listarr/choice_list are not ZERO NULL/NAN OBS:'\n" +
-            f"querying_listarr {sum(pd.Series(querying_listarr).isna())} NA," +
-            f" choice_list {sum(pd.Series(choice_list).isna())} NA"
-        )
-    
-    if np.any(pd.Series(choice_list).duplicated()):
-        raise ValueError('Error:there are duplicated in choice list, may cause confusing result')
-    """
-    # 230415-> New version would detect the querying array's duplications, for better use may need to merge
-    #          instead of to concat...
+    # In new function, we add copy to make sure they are safe
     if np.any(pd.Series(querying_listarr).duplicated()) or np.any(pd.Series(querying_listarr).isna()):
         print(
             "\nDuplicates or Null/Na in querying are detected and automatically removed\n"
         )
-        querying_listarr = pd.Series(querying_listarr).dropna().drop_duplicates().to_list()
 
-    # if np.any(pd.Series(querying_listarr).isna()):
-    #     raise ValueError("\033[31mNull/Na in querying list may cause confounding\033[0m")
+        querying_listarr = pd.Series(querying_listarr).copy().dropna().drop_duplicates().to_list()
 
     if np.any(pd.Series(choice_list).duplicated()) or np.any(pd.Series(choice_list).isna()):
         print(
             "\nDuplicates or Null/Na in choices are detected and automatically removed\n"
         )
-        choice_list = pd.Series(choice_list).dropna().drop_duplicates().to_list()
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        choice_list = pd.Series(choice_list).copy().dropna().drop_duplicates().to_list()
 
-    # set constants
+    # In new function, we add copy to make sure they are safe
     """CONSTANTS CAN NOT BE CHANGED"""
-    CONST_querying_list = pd.Series(querying_listarr).astype(str).tolist()
-    CONST_choice_list = pd.Series(choice_list).astype(str).tolist()
+    str_querying_list = pd.Series(querying_listarr).copy().astype(str).tolist()
+    str_choice_list = pd.Series(choice_list).copy().astype(str).tolist()
 
-    def __LAMBDA_taskof_list_fuzzymatching_list_tuple(identifier):
-        """
-        :param identifier:identifier
-        :return: results tuple
-        """
-        value = thefuzz.process.extractOne(
-            query=CONST_querying_list[identifier],
-            choices=CONST_choice_list,
-            scorer=scorer
+    return str_querying_list, str_choice_list
+
+
+def _build_fuzzymatch_query_choice_match_panel(query_l, choices_l, scorer, processes):
+    """
+    from query and choice list(No Na, must be query-list and choice-list)
+    then return a panel with origin_query, match_list, and match_score
+    """
+    matchscores_total_mat = rapidfuzz.process.cdist(queries=query_l,
+                                                    choices=choices_l,
+                                                    scorer=scorer,
+                                                    workers=processes)
+    temp_df = pd.DataFrame(matchscores_total_mat,
+                           index=query_l,
+                           columns=choices_l
+                           )
+    temp_df.index.name = 'origin_query'
+    temp_df.columns.name = 'match_list'
+
+    stacked_temp_df = pd.DataFrame(temp_df.stack(), columns=['match_score']).reset_index()
+
+    return stacked_temp_df
+
+
+def _chunksize_fuzzymatch_worker(worker_func, chunksize, query_list, choice_list):
+    """
+    the worker function which input the cleaned query_l/choice_l and run the worker function in chunksize, save memory
+    :return: chunk size using, should likely to result of worker_func(query_l, choice_l)
+    """
+
+    match_rst_df_slice_list = []
+
+    for s in tqdm.tqdm(range(0, len(query_list), chunksize)):
+        slice_query_list = query_list[s:s + chunksize]
+        match_rst_df_slice_list.append(
+            worker_func(query_l=slice_query_list, choices_l=choice_list)
         )
-        return (value, identifier)
 
-    def __LAMBDA_taskof_list_difflibmatching_list_tuple(identifier):
-        """
-        :param identifier:
-        :return:
-        """
-        temp_input = CONST_querying_list[identifier]
-        match_result = difflib.get_close_matches(word=temp_input, possibilities=CONST_choice_list, n=1)
-        if match_result == []:
-            match_result = ''
-        else:
-            match_result = match_result[0]
-        match_scores = difflib.SequenceMatcher(None, match_result, temp_input).ratio()
-        #  *100
-        value = (match_result, match_scores)
+    match_result_df = pd.concat(match_rst_df_slice_list, axis=0).reset_index(drop=True)
 
-        return (value, identifier)
+    return match_result_df
 
-    if method == 'npapply':
-        npapply_query_arr = np.array(CONST_querying_list)[:, np.newaxis]
 
-        time_start = time.time()
-        npapply_match_result_mat = np.apply_along_axis(
-            func1d=lambda x: thefuzz.process.extractOne(query=x[0], choices=CONST_choice_list, scorer=scorer),
-            arr=npapply_query_arr, axis=1)
-        time_end = time.time()
-        print('list_fuzzymatching_df method {} time cost'.format(method), time_end - time_start, 's')
+def list_fuzzymatch_max_df(querying_listarr, choice_list, scorer, processes=-1, chunksize=None):
+    """
+    lisklikearray->fuzzymatch with a LIST. scorer I prefer rapidfuzz.fuzz.ratio(Normalize levenshtein)
+    Difference from list_fuzzymatching_df: only have rapidfuzz_cdist, while it not only return the result
+    of biggest chance, but also the any choices NUMS EQUAL to max one(largest score...)
+    , while, it would not return any observs
+    which not exceed the threshold.
 
-        #  In after place match mean result from choice list
-        #  Only Choose first two rows
-        match_result_df = pd.DataFrame(npapply_match_result_mat, columns=['match_list', 'match_score'])
+    :param querying_listarr:~
+    :param choice_list:~
+    :param scorer: the scorer of fuzzymatch, it could be changed to different result,
+            classic normalized_levenshtein be rapidfuzz.fuzz.ratio,however be useless in difflib method
+    :param processes: the multiprocesses works number, default be all cores
+    :param chunksize: default None, else with slice the query to save the memory.
+    :return: result dataframe, columns: origin_query, match_list, match_score
+    """
 
-    elif method in ['multiprocessing', 'difflib']:
-        #  Slow when compare with others, However is useful
-        _temp_loop_function = {
-            'multiprocessing': __LAMBDA_taskof_list_fuzzymatching_list_tuple,
-            # 'rapidfuzz_multiprocessing': __LAMBDA_taskof_list_rapidFM_list_tuple,
-            'difflib': __LAMBDA_taskof_list_difflibmatching_list_tuple
-        }[method]
-
-        temp_matching_list = []
-        temp_score_list = []
-        temp_identifier_list = []
-
-        with pathos.multiprocessing.Pool(
-                # for safer exception in multiprocess
-                initializer=_BasicTools.MultiprocessT.processes_interrupt_initiator
-        ) as pool:
-            for result in tqdm.tqdm(
-                    pool.imap_unordered(
-                        _temp_loop_function,
-                        range(len(CONST_querying_list))
-                    ),
-                    total=len(CONST_querying_list)
-            ):
-                temp_matching_list.append(result[0][0])
-                temp_score_list.append(result[0][1])
-                temp_identifier_list.append(result[1])
-
-        #  In after place match mean result from choice list
-        mp_match_result_df = pd.DataFrame(
-            {
-                'match_list': temp_matching_list,
-                'match_score': temp_score_list,
-                'identifier': temp_identifier_list
-
-            }
-        )
-        mp_match_result_df = mp_match_result_df.sort_values(by='identifier', ascending=True)
-        match_result_df = mp_match_result_df[['match_list', 'match_score']].reset_index().copy()
-        del match_result_df['index']
-
-    elif method == 'rapidfuzz_cdist':
+    def _lambda_fuzzymatch_max(query_l, choices_l):
         """SuperFast Cpp Matrix method for matching result"""
-        time_start = time.time()
-        matchscores_total_mat = rapidfuzz.process.cdist(queries=CONST_querying_list,
+        matchscores_total_mat = rapidfuzz.process.cdist(queries=query_l,
                                                         scorer=scorer,
-                                                        choices=CONST_choice_list,
-                                                        workers=-1)
+                                                        choices=choices_l,
+                                                        workers=processes)
         matchscores_position_arr = np.nanargmax(matchscores_total_mat, axis=1)
         # In after place match mean result from choice list
-        match_result_df = pd.DataFrame(
+        final_stk_tp_df = pd.DataFrame(
             {
-                'match_list': np.array(CONST_choice_list)[matchscores_position_arr],
-                'match_score': matchscores_total_mat[np.arange(len(CONST_querying_list)),
-                matchscores_position_arr],
+                'origin_query': np.array(query_l),
+                'match_list': np.array(choices_l)[matchscores_position_arr],
+                'match_score': matchscores_total_mat[np.arange(len(query_l)), matchscores_position_arr],
             }
         )
-        time_end = time.time()
-        print('list_fuzzymatching_df method {} time cost'.format(method), time_end - time_start, 's')
+
+        return final_stk_tp_df
+
+    # cleaned the data/ preprocess
+    cleaned_querying_list, cleaned_choice_list = _preprocess_input_query_choice_tuplelist(
+        querying_listarr, choice_list
+    )
+
+    if chunksize:
+        match_result_df = _chunksize_fuzzymatch_worker(
+            worker_func=_lambda_fuzzymatch_max,
+            chunksize=chunksize,
+            query_list=cleaned_querying_list,
+            choice_list=cleaned_choice_list
+        )
+
     else:
-        raise ValueError('Wrong method of iteration')
+        """if not chunksize is given"""
+        match_result_df = _lambda_fuzzymatch_max(query_l=cleaned_querying_list,
+                                                 choices_l=cleaned_choice_list)
 
-    match_result_df = match_result_df.copy()
+    return match_result_df
 
-    # New idea: put the origin data in a result df column
-    match_result_df['origin_query'] = np.array(CONST_querying_list)
 
-    match_result_df['match_score'] = match_result_df['match_score'].astype(float)
-    # make 0~100%
-    if np.all((match_result_df['match_score'].to_numpy() >= 0) &
-              (match_result_df['match_score'].to_numpy() <= 1)):
-        match_result_df['match_score'] = np.multiply(match_result_df['match_score'], 100)
-        print(f'method {method},scorer {scorer} has *100 their scores')
+def list_fuzzymatch_nlargests_df(querying_listarr, choice_list, scorer, max_nums: int, keep='first', processes=-1,
+                                 chunksize=None):
+    """
+    lisklikearray->fuzzymatch with a LIST. scorer I prefer rapidfuzz.fuzz.ratio(Normalize levenshtein)
+    Difference from list_fuzzymatching_df: only have rapidfuzz_cdist, while it not only return the result
+    of biggest chance, but also the any choices NUMS EQUAL to max_nums(or less then if choices are not enough...)
+    , while, it would not return any observs
+    which not exceed the threshold.
+
+    :param querying_listarr:~
+    :param choice_list:~
+    :param scorer: the scorer of fuzzymatch, it could be changed to different result,
+            classic normalized_levenshtein be rapidfuzz.fuzz.ratio,however be useless in difflib method
+    :param max_nums: the max numbers to choose from choices, per query
+    :param keep: the param of https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.nlargest.html
+    :param processes: the multiprocesses works number, default be all cores
+    :param chunksize: default None, else with slice the query to save the memory.
+    :return: result dataframe, columns: origin_query, match_list, match_score
+    """
+
+    def _lambda_fuzzymatch_nlargest(query_l, choices_l):
+        """SuperFast Cpp Matrix method for matching result"""
+        stacked_temp_df = _build_fuzzymatch_query_choice_match_panel(query_l=query_l,
+                                                                     choices_l=choices_l,
+                                                                     scorer=scorer,
+                                                                     processes=processes
+                                                                     )
+
+        final_stk_tp_df = stacked_temp_df.groupby(by=['origin_query']).apply(
+            lambda x: x.nlargest(n=max_nums, columns='match_score', keep=keep)
+        ).reset_index(level=['origin_query'], drop=True)
+
+        return final_stk_tp_df
+
+    # cleaned the data/ preprocess
+    cleaned_querying_list, cleaned_choice_list = _preprocess_input_query_choice_tuplelist(
+        querying_listarr, choice_list
+    )
+
+    if chunksize:
+        match_result_df = _chunksize_fuzzymatch_worker(
+            worker_func=_lambda_fuzzymatch_nlargest,
+            chunksize=chunksize,
+            query_list=cleaned_querying_list,
+            choice_list=cleaned_choice_list
+        )
+
+    else:
+        """if not chunksize is given"""
+        match_result_df = _lambda_fuzzymatch_nlargest(query_l=cleaned_querying_list,
+                                                      choices_l=cleaned_choice_list)
 
     return match_result_df
 
@@ -194,126 +202,35 @@ def list_fuzzymatch_threshold_df(querying_listarr, choice_list, scorer, threshol
     :param chunksize: default None, else with slice the query to save the memory.
     :return: result dataframe, columns: origin_query, match_list, match_score
     """
-    # 230415-> New version would detect the querying array's duplications, for better use may need to merge
-    #          instead of to concat...
-    if np.any(pd.Series(querying_listarr).duplicated()) or np.any(pd.Series(querying_listarr).isna()):
-        print(
-            "\nDuplicates or Null/Na in querying are detected and automatically removed\n"
-        )
-        querying_listarr = pd.Series(querying_listarr).dropna().drop_duplicates().to_list()
-
-    # if np.any(pd.Series(querying_listarr).isna()):
-    #     raise ValueError("\033[31mNull/Na in querying list may cause confounding\033[0m")
-
-    if np.any(pd.Series(choice_list).duplicated()) or np.any(pd.Series(choice_list).isna()):
-        print(
-            "\nDuplicates or Null/Na in choices are detected and automatically removed\n"
-        )
-        choice_list = pd.Series(choice_list).dropna().drop_duplicates().to_list()
-
-    # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     def _lambda_fuzzymatch_threshold(query_l, choices_l):
         """SuperFast Cpp Matrix method for matching result"""
-        matchscores_total_mat = rapidfuzz.process.cdist(queries=query_l,
-                                                        choices=choices_l,
-                                                        scorer=scorer,
-                                                        workers=processes)
-        temp_df = pd.DataFrame(matchscores_total_mat,
-                               index=query_l,
-                               columns=choices_l
-                               )
-        temp_df.index.name = 'origin_query'
-        temp_df.columns.name = 'match_list'
-
-        stacked_temp_df = pd.DataFrame(temp_df.stack(), columns=['match_score']).reset_index()
+        stacked_temp_df = _build_fuzzymatch_query_choice_match_panel(query_l=query_l,
+                                                                     choices_l=choices_l,
+                                                                     scorer=scorer,
+                                                                     processes=processes
+                                                                     )
 
         final_stk_tp_df = stacked_temp_df[stacked_temp_df['match_score'] > threshold]
 
         return final_stk_tp_df
 
-    # set constants
-    """CONSTANTS CAN NOT BE CHANGED"""
-    CONST_querying_list = pd.Series(querying_listarr).astype(str).tolist()
-    CONST_choice_list = pd.Series(choice_list).astype(str).tolist()
+    # cleaned the data/ preprocess
+    cleaned_querying_list, cleaned_choice_list = _preprocess_input_query_choice_tuplelist(
+        querying_listarr, choice_list
+    )
 
     if chunksize:
-        match_rst_df_slice_list = []
-
-        for s in tqdm.tqdm(range(0, len(CONST_querying_list), chunksize)):
-            slice_query_list = CONST_querying_list[s:s+chunksize]
-            match_rst_df_slice_list.append(
-                _lambda_fuzzymatch_threshold(query_l=slice_query_list,
-                                             choices_l=CONST_choice_list)
-            )
-
-        match_result_df = pd.concat(match_rst_df_slice_list,axis=0).reset_index(drop=True)
+        match_result_df = _chunksize_fuzzymatch_worker(
+            worker_func=_lambda_fuzzymatch_threshold,
+            chunksize=chunksize,
+            query_list=cleaned_querying_list,
+            choice_list=cleaned_choice_list
+        )
 
     else:
         """if not chunksize is given"""
-        match_result_df = _lambda_fuzzymatch_threshold(query_l=CONST_querying_list,
-                                                       choices_l=CONST_choice_list)
+        match_result_df = _lambda_fuzzymatch_threshold(query_l=cleaned_querying_list,
+                                                       choices_l=cleaned_choice_list)
 
     return match_result_df
-
-
-# ----------------------------------------------------------------------------------------------------------------------
-# """L1 Complex DataPrepare Functions"""################################################################################
-# ----------------------------------------------------------------------------------------------------------------------
-
-
-def l1_auto_fuzzymatching_df(querying_listarr, choice_list, slicing_len, method, scorer):
-    """
-    slicing for memory saving....
-    lisklikearray->fuzzymatch with a LIST.scorer I prefer rapidfuzz.fuzz.ratio(Normalize levenshtein)
-    :param querying_listarr:~
-    :param choice_list:~
-    :param slicing_len: slicing len for each matching(rows)
-    :param method: npapply/multiprocessing/rapidfuzz_cdist/difflib
-                ,difflib use special method to match, Not levenshtein
-    :param scorer: the scorer of fuzzymatch, it could be changed to different result,
-            classic normalized_levenshtein be fuzz.ratio,however be useless in difflib method
-    :return: result dataframe
-    """
-
-    # 0.1.1.230205_alpha-> new version only check the n.a. of query list, automatically remove choices duplicates/na >>>
-
-    # # add this only for not raise Value-error after running long-time script
-    # if np.any(pd.Series(querying_listarr).isna()):
-    #     raise ValueError("\033[31mAuto Function->Null/Na in querying list may cause confounding\033[0m")
-
-    # 230415-> New version would detect the querying array's duplications, for better use may need to merge
-    #          instead of to concat...
-    if np.any(pd.Series(querying_listarr).duplicated()) or np.any(pd.Series(querying_listarr).isna()):
-        print(
-            "\nDuplicates or Null/Na in querying are detected and automatically removed\n"
-        )
-        querying_listarr = pd.Series(querying_listarr).dropna().drop_duplicates().to_list()
-
-    # add this to avoid waste of performance and consistency
-    if np.any(pd.Series(choice_list).duplicated()) or np.any(pd.Series(choice_list).isna()):
-        print(
-            "\nDuplicates or Null/Na in choices are detected and automatically removed\n"
-        )
-        choice_list = pd.Series(choice_list).dropna().drop_duplicates().to_list()
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-    querying_arr = np.array(querying_listarr)
-    # slicing for memory easier use.
-    slice_arr = np.arange(0, len(querying_arr), slicing_len)
-    print(
-        'TOTAL LENGTH of none SLICED data:{},SLICES be {} seps'.format(len(querying_arr), len(slice_arr))
-    )
-    if slice_arr[-1] != len(querying_arr):
-        slice_arr = np.append(slice_arr, len(querying_arr))  # his step is run in 100% but not remove 'if'
-
-    df_concat_list = []
-    for k in range(len(slice_arr) - 1):
-        print('MATCH SLICE:{}~{}'.format(slice_arr[k], slice_arr[k + 1]))
-        querying_k_arr = querying_arr[slice_arr[k]:slice_arr[k + 1]]
-        matchresult_k_df = list_fuzzymatching_df(querying_k_arr, choice_list, method=method, scorer=scorer)
-
-        df_concat_list.append(matchresult_k_df)
-
-    total_df = pd.concat(df_concat_list, axis=0).reset_index(drop=True)
-    return total_df
