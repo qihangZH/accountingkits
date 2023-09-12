@@ -3,6 +3,7 @@ from . import NaDupOutlierT
 from . import ReaderT
 from . import SliceSelectT
 from . import StringT
+from . import DataBaseT
 
 # -----------------------------------------------------------------------------------------
 # """level1 Complex DataPrepare Functions"""#################################################

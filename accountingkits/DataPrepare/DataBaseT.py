@@ -8,7 +8,7 @@ def psycopg2_keyboard_interrupt():
     using way:
     running it before you use psycopg2 query
     sample:
-    initialize_postgresql_keyboard_interrupt()
+    psycopg2_keyboard_interrupt()
     ...
     conn = psycopg2.connect()
     cursor = conn.cursor()
