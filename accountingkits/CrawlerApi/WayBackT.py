@@ -12,7 +12,7 @@ import operator
 import ratelimit
 import backoff
 import typing
-from .. import _BasicTools
+from . import _WebT
 
 """
 Author: Romain Boulland, Thomas Bourveau, Matthias Breuer
@@ -101,7 +101,6 @@ def wayback_url_query_df(host, match_type='exact', collapse_time=10,
         return df
 
 
-
 def wayback_url_suburls_search_list(
         archive_url, threads, recursive_times: int = 1, time_range=(None, None),
         ratelimit_call: typing.Union[int, None] = None, ratelimit_period: typing.Union[int, None] = None,
@@ -122,11 +121,12 @@ def wayback_url_suburls_search_list(
 
     if (not (ratelimit_call is None)) and (not (ratelimit_period is None)) and (not (backoff_maxtries is None)):
         """the function return [] but not exception for continue the loop"""
+
         @backoff.on_exception(backoff.expo, ratelimit.RateLimitException, max_tries=backoff_maxtries)
         @ratelimit.limits(calls=ratelimit_call, period=ratelimit_period)
         def _lambda_search_suburls_list(url):
             try:
-                res_list = _BasicTools.WebT.search_html_suburls_list(url, **kwargs)
+                res_list = _WebT.search_html_suburls_list(url, **kwargs)
 
             except Exception as e:
                 print(e)
@@ -135,7 +135,7 @@ def wayback_url_suburls_search_list(
     else:
         def _lambda_search_suburls_list(url):
             try:
-                res_list = _BasicTools.WebT.search_html_suburls_list(url, **kwargs)
+                res_list = _WebT.search_html_suburls_list(url, **kwargs)
 
             except Exception as e:
                 print(e)

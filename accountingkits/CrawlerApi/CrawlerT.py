@@ -1,7 +1,7 @@
 import requests
 import bs4
 import re
-from .. import _BasicTools
+from . import _WebT
 
 
 def test_float_proxy_working_bool(proxies, timeout=180):
@@ -60,4 +60,4 @@ def request_html_url_text_str(url, **kwargs) -> str:
 
 def alias_search_html_suburls_list(url, **kwargs):
     """alias of _BasicTools.search_html_suburls_list"""
-    return _BasicTools.WebT.search_html_suburls_list(url, **kwargs)
+    return _WebT.search_html_suburls_list(url, **kwargs)
