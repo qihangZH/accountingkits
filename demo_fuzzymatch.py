@@ -4,6 +4,7 @@ import rapidfuzz
 import pandas as pd
 import numpy as np
 from faker import Faker
+
 # %%
 if __name__ == '__main__':
     fake = Faker()
@@ -75,6 +76,12 @@ if __name__ == '__main__':
     # 249854    Krystal Brown   Crystal Gonzalez    62.068966   1999     E
     #
     # [249855 rows x 5 columns]
+
+    print(FuzzyMatchT.list_fuzzymatch_nlargests_df(querying_listarr=query_sample_df['company_name'],
+                                                   choice_list=choices_sample_df['company_name'],
+                                                   scorer=rapidfuzz.fuzz.ratio, chunksize=CHUNKSIZE,
+                                                   max_nums=4
+                                                   ))
 
     """you also could input string as in other..."""
     print(FuzzyMatchT.group_fuzzymatch_df(

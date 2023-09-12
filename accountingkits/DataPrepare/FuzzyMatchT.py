@@ -9,6 +9,7 @@ import pathos
 import warnings
 import math
 import time
+from .. import _BasicTools
 
 
 # --------------------------------------------------------------------------------------------
@@ -303,8 +304,10 @@ def list_fuzzymatch_max_df(querying_listarr, choice_list, scorer, processes=-1, 
     return match_result_df
 
 
-def list_fuzzymatch_nlargests_df(querying_listarr, choice_list, scorer, max_nums: int, keep='first', processes=-1,
-                                 chunksize=None, chunksize_taskbar: bool = True, drop_na_null_warn: bool = True):
+def list_fuzzymatch_nlargests_df(querying_listarr, choice_list, scorer, max_nums: int, processes=-1,
+                                 chunksize=None, chunksize_taskbar: bool = True, drop_na_null_warn: bool = True,
+                                 njit_parallel=True, score_datatype=np.float64
+                                 ):
     """
     lisklikearray->fuzzymatch with a LIST. scorer I prefer rapidfuzz.fuzz.ratio(Normalize levenshtein)
     Difference from list_fuzzymatching_df: only have rapidfuzz_cdist, while it not only return the result
@@ -317,27 +320,53 @@ def list_fuzzymatch_nlargests_df(querying_listarr, choice_list, scorer, max_nums
     :param scorer: the scorer of fuzzymatch, it could be changed to different result,
             classic normalized_levenshtein be rapidfuzz.fuzz.ratio,however be useless in difflib method
     :param max_nums: the max numbers to choose from choices, per query
-    :param keep: the param of https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.nlargest.html
     :param processes: the multiprocesses works number, default be all cores
     :param chunksize: default None, else with slice the query to save the memory.
     :param chunksize_taskbar: default True, if or not use taskbar of chunksize
     :param drop_na_null_warn: Is or not tell the user that the NA/NULL are already drop(duplicated)
+    :param njit_parallel: Is or not use parallel mode of numba.njit
+    :param score_datatype: the datatype when using numba.njit sort score matrix, default np.float64
     :return: result dataframe, columns: origin_query, match_list, match_score
     """
 
     def _lambda_fuzzymatch_nlargest(query_l, choices_l):
-        """SuperFast Cpp Matrix method for matching result"""
-        stacked_temp_df = _build_fuzzymatch_query_choice_match_panel(query_l=query_l,
-                                                                     choices_l=choices_l,
-                                                                     scorer=scorer,
-                                                                     processes=processes
-                                                                     )
+        # :param keep: the param of https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.nlargest.html
+        """
+            stacked_temp_df = _build_fuzzymatch_query_choice_match_panel(query_l=query_l,
+                                                                         choices_l=choices_l,
+                                                                         scorer=scorer,
+                                                                         processes=processes
+                                                                         )
 
-        final_stk_tp_df = stacked_temp_df.groupby(by=['origin_query']).apply(
-            lambda x: x.nlargest(n=max_nums, columns='match_score', keep=keep)
-        ).reset_index(level=['origin_query'], drop=True)
+            final_stk_tp_df = stacked_temp_df.groupby(by=['origin_query']).apply(
+                lambda x: x.nlargest(n=max_nums, columns='match_score', keep=keep)
+            ).reset_index(level=['origin_query'], drop=True)
 
-        return final_stk_tp_df
+            return final_stk_tp_df
+        """
+        matchscores_total_mat = rapidfuzz.process.cdist(queries=query_l,
+                                                        scorer=scorer,
+                                                        choices=choices_l,
+                                                        workers=processes)
+
+        rsts_tuple = _BasicTools.NjitT.mat_nextremes_picking_arrtuple(
+            data_mat=matchscores_total_mat,
+            index_arr=query_l,
+            columns_arr=choices_l,
+            extreme_num=max_nums,
+            axis=1,
+            nlargest=True,
+            datatype=score_datatype,
+            parallel=njit_parallel
+        )
+
+        return pd.DataFrame(
+            {
+                'origin_query': rsts_tuple[0],
+                'match_list': rsts_tuple[1],
+                'match_score': rsts_tuple[2]
+            }
+        )
 
     # cleaned the data/ preprocess
     cleaned_querying_list, cleaned_choice_list = _preprocess_input_query_choice_tuplelist(
