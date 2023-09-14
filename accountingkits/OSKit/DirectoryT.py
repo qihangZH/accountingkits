@@ -70,7 +70,7 @@ def traverse_dir_items_list(directory, return_type: typing.Literal['all', 'file'
     return return_item_list
 
 
-def dir_colnames_df(read_df_func, read_dir, suffix_regex: str | None = None, **kwargs):
+def dir_colnames_df(read_df_func, read_dir, suffix_regex: typing.Optional[str] = None, **kwargs):
     """
     To show the colnames of Each DF in a dir, summary in to an DF
 
