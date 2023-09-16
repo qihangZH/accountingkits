@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from accountingkits._BasicTools import NjitT
 
+# %%
 if __name__ == '__main__':
     np.random.seed(0)
     # Set the number of rows for each DataFrame
@@ -119,4 +120,93 @@ if __name__ == '__main__':
         )
     )
 
-# %%
+    # %%
+
+    rsts_tuple = NjitT.mat_threshold_picking_arrtuple(
+        data_mat=sample_mat,
+        index_arr=sample_index,
+        columns_arr=sample_columns,
+        threshold=0.6,
+        axis=1,
+        threshold_pick_func=np.greater
+    )
+    #     index columns      data
+    # 0       0       B  0.715189
+    # 1       0       C  0.602763
+    # 2       1       A  0.645894
+    # 3       1       C  0.891773
+    # 4       1       D  0.963663
+    # 5       2       A  0.791725
+    # 6       2       D  0.925597
+    # 7       3       C  0.832620
+    # 8       3       D  0.778157
+    # 9       3       E  0.870012
+    # 10      4       A  0.978618
+    # 11      4       B  0.799159
+    # 12      4       D  0.780529
+
+    print(
+        pd.DataFrame(
+            {
+                'index': rsts_tuple[0],
+                'columns': rsts_tuple[1],
+                'data': rsts_tuple[2]
+            }
+        )
+    )
+
+    rsts_tuple = NjitT.mat_threshold_picking_arrtuple(
+        data_mat=sample_mat,
+        index_arr=sample_index,
+        columns_arr=sample_columns,
+        threshold=0.5,
+        axis=1,
+        threshold_pick_func=np.less
+    )
+    #   index columns      data
+    # 0      0       E  0.423655
+    # 1      1       B  0.437587
+    # 2      1       E  0.383442
+    # 3      2       E  0.071036
+    # 4      3       A  0.087129
+    # 5      3       B  0.020218
+    # 6      4       C  0.461479
+    # 7      4       E  0.118274
+
+    print(
+        pd.DataFrame(
+            {
+                'index': rsts_tuple[0],
+                'columns': rsts_tuple[1],
+                'data': rsts_tuple[2]
+            }
+        )
+    )
+
+    rsts_tuple = NjitT.mat_threshold_picking_arrtuple(
+        data_mat=sample_mat,
+        index_arr=sample_index,
+        columns_arr=sample_columns,
+        threshold=0.5,
+        axis=0,
+        threshold_pick_func=np.less
+    )
+    #    index columns      data
+    # 0      3       A  0.087129
+    # 1      1       B  0.437587
+    # 2      3       B  0.020218
+    # 3      4       C  0.461479
+    # 4      0       E  0.423655
+    # 5      1       E  0.383442
+    # 6      2       E  0.071036
+    # 7      4       E  0.118274
+
+    print(
+        pd.DataFrame(
+            {
+                'index': rsts_tuple[0],
+                'columns': rsts_tuple[1],
+                'data': rsts_tuple[2]
+            }
+        )
+    )

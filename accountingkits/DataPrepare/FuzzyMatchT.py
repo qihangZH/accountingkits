@@ -394,7 +394,10 @@ def list_fuzzymatch_nlargests_df(querying_listarr, choice_list, scorer, max_nums
 
 
 def list_fuzzymatch_threshold_df(querying_listarr, choice_list, scorer, threshold, processes=-1, chunksize=None,
-                                 chunksize_taskbar: bool = True, drop_na_null_warn: bool = True
+                                 chunksize_taskbar: bool = True, drop_na_null_warn: bool = True,
+                                 njit_parallel=True, score_datatype=np.float64,
+                                 threshold_pick_func: np.ufunc = np.greater,
+                                 jit=False,
                                  ):
     """
     lisklikearray->fuzzymatch with a LIST. scorer I prefer rapidfuzz.fuzz.ratio(Normalize levenshtein)
@@ -411,20 +414,50 @@ def list_fuzzymatch_threshold_df(querying_listarr, choice_list, scorer, threshol
     :param chunksize: default None, else with slice the query to save the memory.
     :param chunksize_taskbar: default True, if or not use taskbar of chunksize
     :param drop_na_null_warn: Is or not tell the user that the NA/NULL are already drop(duplicated)
+    :param njit_parallel: Is or not use parallel mode of numba.njit
+    :param score_datatype: the datatype when using numba.njit sort score matrix, default np.float64
+    :param threshold_pick_func: threshold_pick_func(x, threshold) pick the intend result, must used in numba funcs,
+        see: https://numba.pydata.org/numba-doc/dev/reference/numpysupported.html
     :return: result dataframe, columns: origin_query, match_list, match_score
     """
 
     def _lambda_fuzzymatch_threshold(query_l, choices_l):
         """SuperFast Cpp Matrix method for matching result"""
-        stacked_temp_df = _build_fuzzymatch_query_choice_match_panel(query_l=query_l,
-                                                                     choices_l=choices_l,
-                                                                     scorer=scorer,
-                                                                     processes=processes
-                                                                     )
+        if jit:
+            matchscores_total_mat = rapidfuzz.process.cdist(queries=query_l,
+                                                            scorer=scorer,
+                                                            choices=choices_l,
+                                                            workers=processes)
 
-        final_stk_tp_df = stacked_temp_df[stacked_temp_df['match_score'] > threshold]
+            rsts_tuple = _BasicTools.NjitT.mat_threshold_picking_arrtuple(
+                data_mat=matchscores_total_mat,
+                index_arr=query_l,
+                columns_arr=choices_l,
+                threshold=threshold,
+                axis=1,
+                threshold_pick_func=threshold_pick_func,
+                datatype=score_datatype,
+                parallel=njit_parallel
+            )
 
-        return final_stk_tp_df
+            return pd.DataFrame(
+                {
+                    'origin_query': rsts_tuple[0],
+                    'match_list': rsts_tuple[1],
+                    'match_score': rsts_tuple[2]
+                }
+            )
+
+        else:
+            stacked_temp_df = _build_fuzzymatch_query_choice_match_panel(query_l=query_l,
+                                                                         choices_l=choices_l,
+                                                                         scorer=scorer,
+                                                                         processes=processes
+                                                                         )
+
+            final_stk_tp_df = stacked_temp_df[stacked_temp_df['match_score'] > threshold]
+
+            return final_stk_tp_df
 
     # cleaned the data/ preprocess
     cleaned_querying_list, cleaned_choice_list = _preprocess_input_query_choice_tuplelist(

@@ -77,11 +77,6 @@ if __name__ == '__main__':
     #
     # [249855 rows x 5 columns]
 
-    print(FuzzyMatchT.list_fuzzymatch_nlargests_df(querying_listarr=query_sample_df['company_name'],
-                                                   choice_list=choices_sample_df['company_name'],
-                                                   scorer=rapidfuzz.fuzz.ratio, chunksize=CHUNKSIZE,
-                                                   max_nums=4
-                                                   ))
 
     """you also could input string as in other..."""
     print(FuzzyMatchT.group_fuzzymatch_df(
@@ -110,3 +105,26 @@ if __name__ == '__main__':
     # 299015  Christopher Wilson MD  Christopher Garrison    78.048782   1999
     #
     # [299016 rows x 4 columns]
+
+    print(FuzzyMatchT.list_fuzzymatch_max_df(querying_listarr=query_sample_df['company_name'],
+                                             choice_list=choices_sample_df['company_name'],
+                                             scorer=rapidfuzz.fuzz.ratio, chunksize=CHUNKSIZE
+                                             ))
+
+    print(FuzzyMatchT.list_fuzzymatch_nlargests_df(querying_listarr=query_sample_df['company_name'],
+                                                   choice_list=choices_sample_df['company_name'],
+                                                   scorer=rapidfuzz.fuzz.ratio, chunksize=CHUNKSIZE,
+                                                   max_nums=4
+                                                   ))
+
+    rst_df1 = FuzzyMatchT.list_fuzzymatch_threshold_df(querying_listarr=query_sample_df['company_name'],
+                                                   choice_list=choices_sample_df['company_name'],
+                                                   scorer=rapidfuzz.fuzz.ratio, chunksize=CHUNKSIZE,
+                                                   threshold=60, jit=True
+                                                   )
+
+    rst_df2 = FuzzyMatchT.list_fuzzymatch_threshold_df(querying_listarr=query_sample_df['company_name'],
+                                                   choice_list=choices_sample_df['company_name'],
+                                                   scorer=rapidfuzz.fuzz.ratio, chunksize=CHUNKSIZE,
+                                                   threshold=60, jit=False
+                                                   )
