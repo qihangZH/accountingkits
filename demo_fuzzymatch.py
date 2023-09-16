@@ -117,14 +117,8 @@ if __name__ == '__main__':
                                                    max_nums=4
                                                    ))
 
-    rst_df1 = FuzzyMatchT.list_fuzzymatch_threshold_df(querying_listarr=query_sample_df['company_name'],
+    print(FuzzyMatchT.list_fuzzymatch_threshold_df(querying_listarr=query_sample_df['company_name'],
                                                    choice_list=choices_sample_df['company_name'],
                                                    scorer=rapidfuzz.fuzz.ratio, chunksize=CHUNKSIZE,
                                                    threshold=60, jit=True
-                                                   )
-
-    rst_df2 = FuzzyMatchT.list_fuzzymatch_threshold_df(querying_listarr=query_sample_df['company_name'],
-                                                   choice_list=choices_sample_df['company_name'],
-                                                   scorer=rapidfuzz.fuzz.ratio, chunksize=CHUNKSIZE,
-                                                   threshold=60, jit=False
-                                                   )
+                                                   ))
