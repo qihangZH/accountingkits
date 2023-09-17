@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 from faker import Faker
 
+
 # %%
 if __name__ == '__main__':
     fake = Faker()
@@ -45,7 +46,7 @@ if __name__ == '__main__':
     """
     you can see the result is larger, for drop-duplicates are all having inside per loop
     because grouped, so we can assure duplicates drop less in grouped fuzzy
-    
+
     By the while, many naic-state pair only have observe in one side, so it has less
     result then naics result.
     """
@@ -77,7 +78,6 @@ if __name__ == '__main__':
     #
     # [249855 rows x 5 columns]
 
-
     """you also could input string as in other..."""
     print(FuzzyMatchT.group_fuzzymatch_df(
         list_fuzzymatch_func=FuzzyMatchT.list_fuzzymatch_max_df,
@@ -106,11 +106,6 @@ if __name__ == '__main__':
     #
     # [299016 rows x 4 columns]
 
-    print(FuzzyMatchT.list_fuzzymatch_max_df(querying_listarr=query_sample_df['company_name'],
-                                             choice_list=choices_sample_df['company_name'],
-                                             scorer=rapidfuzz.fuzz.ratio, chunksize=CHUNKSIZE
-                                             ))
-
     print(FuzzyMatchT.list_fuzzymatch_nlargests_df(querying_listarr=query_sample_df['company_name'],
                                                    choice_list=choices_sample_df['company_name'],
                                                    scorer=rapidfuzz.fuzz.ratio, chunksize=CHUNKSIZE,
@@ -120,5 +115,4 @@ if __name__ == '__main__':
     print(FuzzyMatchT.list_fuzzymatch_threshold_df(querying_listarr=query_sample_df['company_name'],
                                                    choice_list=choices_sample_df['company_name'],
                                                    scorer=rapidfuzz.fuzz.ratio, chunksize=CHUNKSIZE,
-                                                   threshold=60, jit=True
-                                                   ))
+                                                   threshold=70))

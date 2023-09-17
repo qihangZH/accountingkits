@@ -1,7 +1,7 @@
 # %%
 import pandas as pd
 import numpy as np
-from accountingkits._BasicTools import NjitT
+from accountingkits._BasicTools import MatrixLikeT
 
 # %%
 if __name__ == '__main__':
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     #  [0.0871293  0.0202184  0.83261985 0.77815675 0.87001215]
     #  [0.97861834 0.79915856 0.46147936 0.78052918 0.11827443]]
 
-    rsts_tuple = NjitT.mat_nextremes_picking_arrtuple(
+    rsts_tuple = MatrixLikeT.mat_peraxis_nextremes_picking_arrtuple(
         data_mat=sample_mat,
         index_arr=sample_index,
         columns_arr=sample_columns,
@@ -50,7 +50,7 @@ if __name__ == '__main__':
         )
     )
 
-    rsts_tuple = NjitT.mat_nextremes_picking_arrtuple(
+    rsts_tuple = MatrixLikeT.mat_peraxis_nextremes_picking_arrtuple(
         data_mat=sample_mat,
         index_arr=sample_index,
         columns_arr=sample_columns,
@@ -85,7 +85,7 @@ if __name__ == '__main__':
         )
     )
 
-    rsts_tuple = NjitT.mat_nextremes_picking_arrtuple(
+    rsts_tuple = MatrixLikeT.mat_peraxis_nextremes_picking_arrtuple(
         data_mat=sample_mat,
         index_arr=sample_index,
         columns_arr=sample_columns,
@@ -122,13 +122,13 @@ if __name__ == '__main__':
 
     # %%
 
-    rsts_tuple = NjitT.mat_threshold_picking_arrtuple(
+    rsts_tuple = MatrixLikeT.mat_peraxis_threshold_picking_arrtuple(
         data_mat=sample_mat,
         index_arr=sample_index,
         columns_arr=sample_columns,
         threshold=0.6,
         axis=1,
-        threshold_pick_func=np.greater
+        threshold_pick_method='greater'
     )
     #     index columns      data
     # 0       0       B  0.715189
@@ -155,13 +155,13 @@ if __name__ == '__main__':
         )
     )
 
-    rsts_tuple = NjitT.mat_threshold_picking_arrtuple(
+    rsts_tuple = MatrixLikeT.mat_peraxis_threshold_picking_arrtuple(
         data_mat=sample_mat,
         index_arr=sample_index,
         columns_arr=sample_columns,
         threshold=0.5,
         axis=1,
-        threshold_pick_func=np.less
+        threshold_pick_method='less'
     )
     #   index columns      data
     # 0      0       E  0.423655
@@ -183,13 +183,13 @@ if __name__ == '__main__':
         )
     )
 
-    rsts_tuple = NjitT.mat_threshold_picking_arrtuple(
+    rsts_tuple = MatrixLikeT.mat_peraxis_threshold_picking_arrtuple(
         data_mat=sample_mat,
         index_arr=sample_index,
         columns_arr=sample_columns,
         threshold=0.5,
         axis=0,
-        threshold_pick_func=np.less
+        threshold_pick_method='less_equal'
     )
     #    index columns      data
     # 0      3       A  0.087129
