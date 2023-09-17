@@ -210,3 +210,33 @@ if __name__ == '__main__':
             }
         )
     )
+
+
+    rsts_tuple = MatrixLikeT.mat_peraxis_threshold_picking_arrtuple(
+        data_mat=sample_mat,
+        index_arr=sample_index,
+        columns_arr=sample_columns,
+        threshold=0.5,
+        axis=0,
+        threshold_pick_method='less_equal',
+        parallel=False
+    )
+    #    index columns      data
+    # 0      3       A  0.087129
+    # 1      1       B  0.437587
+    # 2      3       B  0.020218
+    # 3      4       C  0.461479
+    # 4      0       E  0.423655
+    # 5      1       E  0.383442
+    # 6      2       E  0.071036
+    # 7      4       E  0.118274
+
+    print(
+        pd.DataFrame(
+            {
+                'index': rsts_tuple[0],
+                'columns': rsts_tuple[1],
+                'data': rsts_tuple[2]
+            }
+        )
+    )
