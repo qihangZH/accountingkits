@@ -416,7 +416,7 @@ def group_fuzzymatch_df(list_fuzzymatch_func, query_group_df: pd.DataFrame, choi
 
         return pd.concat(grp_match_rst_df_list, axis=0).reset_index(drop=True)
 
-    print(kwargs)
+    # print(kwargs)  # check the kwargs, debug using
     # Main part-Preprocessing ------------------------------------------------------------------
 
     preprocess_timestart = time.time()
