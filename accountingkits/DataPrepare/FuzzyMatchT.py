@@ -102,7 +102,7 @@ def _chunksize_fuzzymatch_worker(worker_func, chunksize, query_list, choice_list
 # --------------------------------------------------------------------------------------------
 
 def list_fuzzymatch_max_df(querying_listarr, choice_list, scorer, processes=-1, chunksize=None,
-                           chunksize_taskbar: bool = True, drop_na_null_warn: bool = True, **kwargs):
+                           chunksize_taskbar: bool = True, drop_na_null_warn: bool = True):
     """
     lisklikearray->fuzzymatch with a LIST. scorer I prefer rapidfuzz.fuzz.ratio(Normalize levenshtein)
     Difference from list_fuzzymatching_df: only have rapidfuzz_cdist, while it not only return the result
@@ -117,7 +117,6 @@ def list_fuzzymatch_max_df(querying_listarr, choice_list, scorer, processes=-1, 
     :param chunksize: default None, else with slice the query to save the memory.
     :param chunksize_taskbar: default True, if or not use taskbar of chunksize
     :param drop_na_null_warn: Is or not tell the user that the NA/NULL are already drop(duplicated)
-    :param kwargs: the place to avoid possible error casting caused by misuse-argument passed from group_fuzzymatch_df
     :return: result dataframe, columns: origin_query, match_list, match_score
     """
 
