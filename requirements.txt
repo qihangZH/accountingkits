@@ -1,0 +1,14 @@
+requests
+pandas
+bs4
+numpy
+tldextract
+ratelimit
+backoff
+psycopg2
+rapidfuzz
+tqdm
+pathos
+sas7bdat
+chardet
+numba
