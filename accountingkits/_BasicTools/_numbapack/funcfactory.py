@@ -14,6 +14,9 @@ def funcfactory_worker_pick_mat_nextreme(parallel: bool):
 
         len_ind, len_cols = _mat.shape
 
+        # we have to make sure nlargest big the minium of len_cols and nlargest arg
+        extreme_num = min(len_cols, extreme_num)
+
         # the container to save the arg-sort results(arg-sort-nextremes)
         result_argsort_row_arr = np.zeros(len_ind * extreme_num, dtype=np.int32)
         result_argsort_col_arr = np.zeros(len_ind * extreme_num, dtype=np.int32)
