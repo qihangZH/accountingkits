@@ -8,58 +8,37 @@ This is a self-made package which target is help to deal with different problems
 **WARNING: This version is Still PREVIEW and UNSTABLE! 
 ANY functions and classes COULD BE CHANGED (NAMES OR OTHERS) IN  FUTURE!**
 
+## 0. Developer Notes
+1) name should be ```v\d.\d.\d.\d{6}[a-z]?```. For example, v0.1.1.230115 is for stable version. 
+Where v0.1.3.231113b is notable for beta version. ```b``` suffix is means for beta and ```a``` is
+for alpha. Or GitHub auto script will cause error.
+
 ## 1. Setup the package:
 
-I recommend to install the package by conda-forge, or may cause error:
-
-In rolling version(How ever the package itself would be stop from have dependencies),
-because I use conda to manage my package, but pip always try to corrupt my environment.
-
-This make me could not put these following dependencies in setup.cfg, 
-If there found any method to help me to manage the environment while could help you with dependencies,
-feel free to tell me, it is the first time for me to write the python package, thank you.
-
-Here are Conda install packages:
-```
-certifi
-numpy
-pandas
-pathos
-requests
-python-Levenshtein
-thefuzz
-rapidfuzz
-sas7bdat
-nltk
-beautifulsoup4
-fake-useragent
-Cython
-wordninja
-```
-
-You may install these special dependencies from pip only:
-```
-ratelimit
-backoff
-```
-Check that some of other pack are recommend but not need:
-```
-selenium (pip)
-```
-
-then clone->install
-
+It is always recommend to get latest version from git directly.
 ```shell
 git clone https://github.com/qihangZH/accountingkits.git
 cd accountingkits
 pip install .
 ```
 
-If developing need:
+OR get from pypi's latest release, may not latest version.
+
+```shell
+pip install accountingkits
+```
+
+If developing need(first download pack from git):
 
 ```shell
 #IF DEVELOPING
 python setup.py develop
+```
+
+Dependencies could be downloaded from git by requirements.txt easily:
+It is not forced for you could management the dependency by conda.
+```shell
+pip install -r requirements.txt
 ```
 
 ## 2. How if  I need to use the single module But I find it use other modules?
