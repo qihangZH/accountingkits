@@ -7,7 +7,7 @@ try:
     from ._version import __version__
 except ModuleNotFoundError as e:
     # if it is download from git directly
-    __version__ = 'v.preview.version'
+    __version__ = 'v.latest.preview.version'
 
 """
 package principle:
