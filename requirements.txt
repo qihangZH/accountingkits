@@ -12,3 +12,4 @@ pathos
 sas7bdat
 chardet
 numba
+multiprocess
