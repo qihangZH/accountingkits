@@ -5,7 +5,8 @@ from . import _BasicTools
 
 try:
     from ._version import __version__
-except Exception as e:
+except ModuleNotFoundError as e:
+    # if it is download from git directly
     __version__ = 'v.preview.version'
 
 """
