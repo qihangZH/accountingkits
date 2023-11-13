@@ -2,7 +2,11 @@ from . import DataPrepare
 from . import OSKit
 from . import CrawlerApi
 from . import _BasicTools
-from ._version import __version__
+
+try:
+    from ._version import __version__
+except Exception as e:
+    __version__ = 'v.preview.version'
 
 """
 package principle:
