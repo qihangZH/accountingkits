@@ -1,4 +1,3 @@
-from . import FuzzyMatchT
 from . import NaDupOutlierT
 from . import ReaderT
 from . import SliceSelectT
